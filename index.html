@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelGuard - Image Encryption Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+        }
+        .canvas-container {
+            background-image: 
+                linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+                linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+    <header class="bg-slate-800 border-b border-slate-700 shadow-md p-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <h1 class="text-2xl font-bold tracking-tight text-white">Pixel<span class="text-indigo-400">Guard</span></h1>
+            </div>
+            <p class="text-slate-400 text-sm hidden sm:block">Pixel-Level Image Security</p>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-8 w-full max-w-6xl mx-auto flex flex-col gap-6">
+        
+        <!-- Project Details Banner -->
+        <div class="bg-slate-800/80 border border-slate-600 rounded-xl p-6 shadow-lg flex flex-col md:flex-row items-center md:items-start gap-8">
+            <!-- Logo Section -->
+            <div class="shrink-0">
+                <img src="Fantastic Four Main Logo.jpeg" alt="Fantastic 4 Logo" class="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl shadow-xl border border-slate-700 bg-black">
+            </div>
+            
+            <!-- Details Section -->
+            <div class="text-base text-slate-300 flex flex-col justify-center space-y-4 w-full h-full md:py-4">
+                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                    <strong class="text-amber-500 min-w-[140px]">Project Name:</strong> 
+                    <span class="text-slate-100 font-medium">Pixel Guard (Image Based Encryption Tool)</span>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                    <strong class="text-amber-500 min-w-[140px]">Group Name:</strong> 
+                    <span class="text-slate-100 font-medium">Fantastic 4</span>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                    <strong class="text-amber-500 min-w-[140px]">Section:</strong> 
+                    <span class="text-slate-100 font-medium">A (G2)</span>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2">
+                    <strong class="text-amber-500 min-w-[140px]">Group Members:</strong> 
+                    <span class="text-slate-100 font-medium leading-relaxed">Anmol Kumar, Aryan Mishra, Anshuman Singh, Arjun Sharma</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-blue-900/30 border border-blue-800 rounded-lg p-4 flex gap-4 items-start">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="text-sm text-blue-100">
+                <p class="font-semibold text-blue-300 mb-1">How it works:</p>
+                <p>This tool uses a symmetric XOR pixel algorithm. Your password generates a unique mathematical stream that scrambles the RGB values of every pixel. 
+                <strong>To decrypt, you must upload the EXACT encrypted PNG and use the EXACT same password.</strong> Note: Encrypted images are always saved as PNGs. Saving as JPEG will compress the [...]
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-2">
+            
+            <!-- Input Section -->
+            <div class="flex flex-col gap-4">
+                <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-2">
+                    <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span>
+                    Input Image
+                </h2>
+                
+                <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-all cursor-pointer relative flex [...]
+                    <input type="file" id="file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="text-slate-300 font-medium">Click to browse or drag & drop</p>
+                    <p class="text-slate-500 text-sm mt-1">Supports PNG, JPG, WEBP, GIF</p>
+                    <p id="file-name-display" class="mt-4 text-sm font-semibold text-emerald-400 truncate max-w-[250px]"></p>
+                </div>
+                
+                <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center canvas-container shadow-inner">
+                    <div id="input-placeholder" class="text-slate-500 flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2[...]
+                        </svg>
+                        <span class="text-sm">Original Preview</span>
+                    </div>
+                    <canvas id="canvas-input" class="max-w-full max-h-full hidden"></canvas>
+                </div>
+            </div>
+
+            <!-- Output & Controls Section -->
+            <div class="flex flex-col gap-4">
+                <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-2">
+                    <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
+                    Process & Output
+                </h2>
+                
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col gap-4 shadow-sm">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Secret Key / Password</label>
+                        <input type="password" id="password" placeholder="Enter a strong password..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-s[...]
+                    </div>
+                    
+                    <div class="flex gap-3 mt-1">
+                        <button id="btn-process" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 [...]
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                            </svg>
+                            Encrypt / Decrypt
+                        </button>
+                        <button id="btn-download" disabled class="flex-1 bg-emerald-600/50 text-emerald-200 font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 [...]
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Save PNG
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center canvas-container shadow-inner">
+                    <div id="output-placeholder" class="text-slate-500 flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 00[...]
+                        </svg>
+                        <span class="text-sm">Processed Result</span>
+                    </div>
+                    
+                    <!-- Loading Overlay -->
+                    <div id="processing-overlay" class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex-col items-center justify-center z-10">
+                        <svg class="animate-spin -ml-1 mr-3 h-10 w-10 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-indigo-300 font-medium animate-pulse">Scrambling Pixels...</p>
+                    </div>
+                    
+                    <canvas id="canvas-output" class="max-w-full max-h-full hidden shadow-2xl"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Modal for Alerts -->
+        <div id="custom-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300" id="modal-content-box">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-indigo-500/20 p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white">Notice</h3>
+                </div>
+                <p id="modal-message" class="text-slate-300 text-sm mb-6"></p>
+                <button id="btn-close-modal" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                    Understood
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const passwordInput = document.getElementById('password');
+        const btnProcess = document.getElementById('btn-process');
+        const btnDownload = document.getElementById('btn-download');
+        
+        const canvasInput = document.getElementById('canvas-input');
+        const ctxInput = canvasInput.getContext('2d', { willReadFrequently: true });
+        const inputPlaceholder = document.getElementById('input-placeholder');
+        
+        const canvasOutput = document.getElementById('canvas-output');
+        const ctxOutput = canvasOutput.getContext('2d', { willReadFrequently: true });
+        const outputPlaceholder = document.getElementById('output-placeholder');
+        const processingOverlay = document.getElementById('processing-overlay');
+
+        // Modal Elements
+        const customModal = document.getElementById('custom-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        const modalContentBox = document.getElementById('modal-content-box');
+
+        function showMessage(msg) {
+            modalMessage.textContent = msg;
+            customModal.classList.remove('hidden');
+            // Trigger reflow for transition animation
+            void customModal.offsetWidth;
+            customModal.classList.remove('opacity-0');
+            modalContentBox.classList.remove('scale-95');
+            modalContentBox.classList.add('scale-100');
+        }
+
+        function hideMessage() {
+            customModal.classList.add('opacity-0');
+            modalContentBox.classList.remove('scale-100');
+            modalContentBox.classList.add('scale-95');
+            setTimeout(() => {
+                customModal.classList.add('hidden');
+            }, 300);
+        }
+
+        btnCloseModal.addEventListener('click', hideMessage);
+
+        // State
+        let currentImage = null;
+        let originalFileName = "encrypted_image";
+
+        // --- File Handling Logic ---
+
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            handleFile(e.target.files[0]);
+        });
+
+        // Drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-indigo-400', 'bg-slate-800');
+        });
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-400', 'bg-slate-800');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-400', 'bg-slate-800');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                showMessage("Please select a valid image file.");
+                return;
+            }
+
+            // Extract name without extension for download later
+            originalFileName = file.name.split('.').slice(0, -1).join('.') || "image";
+            fileNameDisplay.textContent = file.name;
+            fileNameDisplay.classList.add('text-indigo-300');
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = img;
+                    
+                    // Set input canvas dimensions
+                    canvasInput.width = img.width;
+                    canvasInput.height = img.height;
+                    
+                    // Draw to input canvas
+                    ctxInput.drawImage(img, 0, 0);
+                    
+                    // UI Updates
+                    canvasInput.classList.remove('hidden');
+                    inputPlaceholder.classList.add('hidden');
+                    
+                    // Reset output
+                    canvasOutput.classList.add('hidden');
+                    outputPlaceholder.classList.remove('hidden');
+                    btnDownload.disabled = true;
+                    btnDownload.classList.remove('bg-emerald-600', 'text-white');
+                    btnDownload.classList.add('bg-emerald-600/50', 'text-emerald-200');
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // --- Cryptography & Math Helpers ---
+
+        // Simple string hashing function to create a numeric seed from the password
+        function hashString(str) {
+            let hash = 0;
+            if (str.length === 0) return hash;
+            for (let i = 0; i < str.length; i++) {
+                let char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash;
+        }
+
+        // Mulberry32 Pseudo-Random Number Generator
+        // Very fast and suitable for generating a deterministic stream of bytes
+        function mulberry32(a) {
+            return function() {
+              var t = a += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+
+        // --- Core Processing Logic ---
+        
+        btnProcess.addEventListener('click', () => {
+            if (!currentImage) {
+                showMessage("Please upload an image first.");
+                return;
+            }
+            
+            const password = passwordInput.value;
+            if (!password) {
+                showMessage("Please enter a password/key.");
+                return;
+            }
+
+            // Show processing state (Yield to UI thread first using setTimeout)
+            processingOverlay.classList.remove('hidden');
+            outputPlaceholder.classList.add('hidden');
+            canvasOutput.classList.add('hidden');
+
+            setTimeout(() => {
+                try {
+                    processImage(password);
+                } catch (err) {
+                    console.error(err);
+                    showMessage("An error occurred during processing.");
+                    processingOverlay.classList.add('hidden');
+                }
+            }, 50); // Small delay allows the DOM to render the loading overlay
+        });
+
+        function processImage(password) {
+            const width = canvasInput.width;
+            const height = canvasInput.height;
+            
+            // Set output canvas size to match
+            canvasOutput.width = width;
+            canvasOutput.height = height;
+
+            // Get pixel data from input
+            const imageData = ctxInput.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            // Initialize seeded PRNG
+            let seed = hashString(password);
+            // If hash is 0 (e.g. specific strings), give it a default offset to ensure scrambling
+            if(seed === 0) seed = 0x1A2B3C4D; 
+            const rand = mulberry32(seed);
+
+            // The core XOR Pixel manipulation
+            // Data array is flat: [R, G, B, A, R, G, B, A, ...]
+            for (let i = 0; i < data.length; i += 4) {
+                
+                // Generate 3 pseudo-random bytes (0-255) for R, G, B
+                const rMask = Math.floor(rand() * 256);
+                const gMask = Math.floor(rand() * 256);
+                const bMask = Math.floor(rand() * 256);
+
+                // XOR the original pixel value with the mask
+                // Using Bitwise XOR (^). Since (A ^ B) ^ B = A, this is fully symmetric/reversible
+                data[i]     = data[i]     ^ rMask; // Red
+                data[i + 1] = data[i + 1] ^ gMask; // Green
+                data[i + 2] = data[i + 2] ^ bMask; // Blue
+                
+                // Note: We deliberately skip data[i + 3] (Alpha channel) 
+                // Altering transparency can break image structure and cause saving issues.
+            }
+
+            // Put processed data onto the output canvas
+            ctxOutput.putImageData(imageData, 0, 0);
+
+            // Update UI
+            processingOverlay.classList.add('hidden');
+            canvasOutput.classList.remove('hidden');
+            
+            // Enable Download
+            btnDownload.disabled = false;
+            btnDownload.classList.add('bg-emerald-600', 'text-white');
+            btnDownload.classList.remove('bg-emerald-600/50', 'text-emerald-200');
+        }
+
+        // --- Download Logic ---
+
+        btnDownload.addEventListener('click', () => {
+            // CRITICAL: We MUST save as image/png. 
+            // Saving as JPEG will apply lossy compression, permanently destroying the exact XOR values,
+            // making decryption impossible.
+            const dataURL = canvasOutput.toDataURL('image/png');
+            
+            // Create a temporary link element to trigger the download
+            const link = document.createElement('a');
+            
+            // Add a suffix to indicate it was processed
+            let newFileName = originalFileName.includes('_pixelguarded') 
+                ? originalFileName.replace('_pixelguarded', '_decrypted') 
+                : originalFileName + '_pixelguarded';
+                
+            link.download = newFileName + '.png';
+            link.href = dataURL;
+            
+            // Append, click, and cleanup
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+    </script>
+<h3> Code Created and Designed by Group: Fantastic Four </h3>   
+</body>
+</html>
