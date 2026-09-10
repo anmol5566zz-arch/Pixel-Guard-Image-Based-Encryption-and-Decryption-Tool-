@@ -79,7 +79,7 @@
             <div class="text-sm text-blue-100">
                 <p class="font-semibold text-blue-300 mb-1">How it works:</p>
                 <p>This tool uses a symmetric XOR pixel algorithm. Your password generates a unique mathematical stream that scrambles the RGB values of every pixel. 
-                <strong>To decrypt, you must upload the EXACT encrypted PNG and use the EXACT same password.</strong> Note: Encrypted images are always saved as PNGs. Saving as JPEG will compress the [...]
+                <strong>To decrypt, you must upload the EXACT encrypted PNG and use the EXACT same password.</strong> Note: Encrypted images are always saved as PNGs. Saving as JPEG will compress the image and permanently destroy the encrypted data.</p>
             </div>
         </div>
 
@@ -92,7 +92,7 @@
                     Input Image
                 </h2>
                 
-                <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-all cursor-pointer relative flex [...]
+                <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-all cursor-pointer relative flex flex-col items-center justify-center min-h-[200px]">
                     <input type="file" id="file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -105,7 +105,7 @@
                 <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center canvas-container shadow-inner">
                     <div id="input-placeholder" class="text-slate-500 flex flex-col items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2[...]
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span class="text-sm">Original Preview</span>
                     </div>
@@ -123,17 +123,17 @@
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col gap-4 shadow-sm">
                     <div>
                         <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Secret Key / Password</label>
-                        <input type="password" id="password" placeholder="Enter a strong password..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-s[...]
+                        <input type="password" id="password" placeholder="Enter a strong password..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
                     </div>
                     
                     <div class="flex gap-3 mt-1">
-                        <button id="btn-process" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 [...]
+                        <button id="btn-process" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                             </svg>
                             Encrypt / Decrypt
                         </button>
-                        <button id="btn-download" disabled class="flex-1 bg-emerald-600/50 text-emerald-200 font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 [...]
+                        <button id="btn-download" disabled class="flex-1 bg-emerald-600/50 text-emerald-200 font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-not-allowed">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
@@ -145,7 +145,7 @@
                 <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center canvas-container shadow-inner">
                     <div id="output-placeholder" class="text-slate-500 flex flex-col items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 00[...]
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
                         <span class="text-sm">Processed Result</span>
                     </div>
