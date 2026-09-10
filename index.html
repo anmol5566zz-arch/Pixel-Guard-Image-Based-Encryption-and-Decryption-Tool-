@@ -30,6 +30,32 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
+    <section id="lock-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-950" aria-labelledby="lock-title">
+        <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-8 text-center">
+            <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <p class="text-sm font-semibold uppercase tracking-widest text-indigo-300">PixelGuard</p>
+            <h1 id="lock-title" class="mt-2 text-2xl font-bold text-white">Unlock PixelGuard</h1>
+            <p id="lock-description" class="mt-3 text-sm leading-relaxed text-slate-400">Enter the access password to open the image encryption tool.</p>
+
+            <form id="lock-form" class="mt-6 space-y-4 text-left">
+                <div>
+                    <label for="access-password" class="mb-1 block text-sm font-medium text-slate-300">Access password</label>
+                    <input type="password" id="access-password" autocomplete="current-password" required class="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white placeholder-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter the access password">
+                </div>
+                <p id="lock-error" class="hidden text-sm text-rose-400" role="alert"></p>
+                <button type="submit" id="unlock-button" class="w-full rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-800">
+                    Unlock tool
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div id="app-shell" class="hidden">
+
     <header class="bg-slate-800 border-b border-slate-700 shadow-md p-4">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -183,7 +209,44 @@
         </div>
     </main>
 
+    <h3 class="p-4 text-center text-sm text-slate-500">Code Created and Designed by Group: Fantastic Four</h3>
+    </div>
+
     <script>
+        // Lock screen
+        const lockScreen = document.getElementById('lock-screen');
+        const appShell = document.getElementById('app-shell');
+        const lockForm = document.getElementById('lock-form');
+        const accessPassword = document.getElementById('access-password');
+        const lockError = document.getElementById('lock-error');
+        const unlockButton = document.getElementById('unlock-button');
+        const accessPasswordValue = 'Anmol@PixelGuard26';
+
+        function showLockError(message) {
+            lockError.textContent = message;
+            lockError.classList.remove('hidden');
+        }
+
+        function unlockTool() {
+            lockScreen.classList.add('hidden');
+            appShell.classList.remove('hidden');
+            accessPassword.value = '';
+        }
+
+        lockForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            lockError.classList.add('hidden');
+
+            if (accessPassword.value !== accessPasswordValue) {
+                showLockError('That access password is incorrect.');
+                return;
+            }
+
+            unlockButton.disabled = true;
+            unlockButton.textContent = 'Checking...';
+            unlockTool();
+        });
+
         // DOM Elements
         const fileInput = document.getElementById('file-input');
         const dropZone = document.getElementById('drop-zone');
@@ -428,6 +491,5 @@
         });
 
     </script>
-<h3> Code Created and Designed by Group: Fantastic Four </h3>   
 </body>
 </html>
