@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelGuard - Image Encryption Tool</title>
+    <title>Crypta - Image Encryption Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -26,20 +26,88 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .lock-symbol {
+            position: relative;
+            isolation: isolate;
+            cursor: default;
+            transition: transform 350ms cubic-bezier(.2,.8,.2,1), color 350ms ease;
+        }
+        .lock-symbol::before,
+        .lock-symbol::after {
+            content: "";
+            position: absolute;
+            inset: -12px;
+            z-index: -1;
+            border: 1px solid rgba(129, 140, 248, .2);
+            border-radius: 999px;
+            opacity: 0;
+            transform: scale(.72);
+            transition: opacity 350ms ease, transform 450ms cubic-bezier(.2,.8,.2,1), border-color 350ms ease;
+        }
+        .lock-symbol::after {
+            inset: -22px;
+            border-color: rgba(96, 165, 250, .12);
+            transition-delay: 70ms;
+        }
+        .lock-symbol:hover {
+            color: #a5b4fc;
+            transform: translateY(-4px) rotate(-4deg) scale(1.08);
+        }
+        .lock-symbol:hover::before,
+        .lock-symbol:hover::after {
+            opacity: 1;
+            transform: scale(1);
+            animation: lock-orbit 2.4s ease-in-out infinite;
+        }
+        .lock-symbol:hover::after {
+            animation-delay: 180ms;
+        }
+        @keyframes lock-orbit {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
+            50% { box-shadow: 0 0 24px 5px rgba(99, 102, 241, .28); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lock-symbol, .lock-symbol::before, .lock-symbol::after { animation: none; transition: none; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
     <section id="lock-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-950" aria-labelledby="lock-title">
-        <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-8 text-center">
-            <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400">
+        <div class="w-full max-w-4xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8">
+            <div class="grid gap-8 md:grid-cols-[220px_1fr] md:items-center">
+                <div class="text-center">
+                    <img src="Fantastic Four Main Logo.jpeg" alt="Crypta project logo" class="mx-auto h-44 w-44 rounded-2xl object-cover shadow-xl ring-1 ring-indigo-400/40">
+                    <p class="mt-4 text-sm font-semibold uppercase tracking-widest text-indigo-300">Crypta</p>
+                    <p class="mt-2 text-xs leading-relaxed text-slate-400">A private workspace for encrypting digital information locally.</p>
+                </div>
+                <div>
+            <div class="lock-symbol mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400" aria-label="Crypta secure access symbol">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
-            <p class="text-sm font-semibold uppercase tracking-widest text-indigo-300">PixelGuard</p>
-            <h1 id="lock-title" class="mt-2 text-2xl font-bold text-white">Unlock PixelGuard</h1>
-            <p id="lock-description" class="mt-3 text-sm leading-relaxed text-slate-400">Enter the access password to open the image encryption tool.</p>
+            <h1 id="lock-title" class="mt-2 text-2xl font-bold text-white">Unlock Crypta</h1>
+            <p id="lock-description" class="mt-3 text-sm leading-relaxed text-slate-400">Crypta is an all-purpose local encryption and decryption tool for protecting digital information in your browser.</p>
+
+            <div class="mt-6 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left text-sm">
+                <div class="flex flex-col gap-1 border-b border-slate-700 pb-3 sm:flex-row sm:items-center sm:gap-3">
+                    <strong class="text-amber-400 sm:min-w-32">Project Name:</strong>
+                    <span class="text-slate-300">Crypta - All-purpose local encryption and decryption tool</span>
+                </div>
+                <div class="flex flex-col gap-1 pt-3 sm:flex-row sm:items-center sm:gap-3">
+                    <strong class="text-amber-400 sm:min-w-32">Team Name:</strong>
+                    <span class="text-slate-300">Fantastic 4</span>
+                </div>
+                <div class="flex flex-col gap-1 border-t border-slate-700 pt-3 sm:flex-row sm:items-center sm:gap-3">
+                    <strong class="text-amber-400 sm:min-w-32">Section:</strong>
+                    <span class="text-slate-300">A (G2)</span>
+                </div>
+                <div class="flex flex-col gap-1 border-t border-slate-700 pt-3 sm:flex-row sm:items-start sm:gap-3">
+                    <strong class="text-amber-400 sm:min-w-32">Team Members:</strong>
+                    <span class="text-slate-300">Anmol Kumar, Aryan Mishra, Anshuman Singh, Arjun Sharma</span>
+                </div>
+            </div>
 
             <form id="lock-form" class="mt-6 space-y-4 text-left">
                 <div>
@@ -51,6 +119,8 @@
                     Unlock tool
                 </button>
             </form>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -62,41 +132,19 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <h1 class="text-2xl font-bold tracking-tight text-white">Pixel<span class="text-indigo-400">Guard</span></h1>
+                <h1 class="text-2xl font-bold tracking-tight text-white">Cryp<span class="text-indigo-400">ta</span></h1>
             </div>
-            <p class="text-slate-400 text-sm hidden sm:block">Pixel-Level Image Security</p>
+            <nav class="flex flex-wrap items-center justify-end gap-2 text-xs sm:text-sm" aria-label="Security tools">
+                <a href="index.html" class="rounded-md bg-indigo-500/20 px-2 py-1 text-indigo-300">Image</a>
+                <a href="text-encryption.html" class="rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-700 hover:text-white">Text</a>
+                <a href="audio-encryption.html" class="rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-700 hover:text-white">Audio</a>
+                <a href="video-encryption.html" class="rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-700 hover:text-white">Video</a>
+                <a href="location-encryption.html" class="rounded-md px-2 py-1 text-slate-400 transition hover:bg-slate-700 hover:text-white">Location</a>
+            </nav>
         </div>
     </header>
 
     <main class="flex-grow p-4 md:p-8 w-full max-w-6xl mx-auto flex flex-col gap-6">
-        
-        <!-- Project Details Banner -->
-        <div class="bg-slate-800/80 border border-slate-600 rounded-xl p-6 shadow-lg flex flex-col md:flex-row items-center md:items-start gap-8">
-            <!-- Logo Section -->
-            <div class="shrink-0">
-                <img src="Fantastic Four Main Logo.jpeg" alt="Fantastic 4 Logo" class="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl shadow-xl border border-slate-700 bg-black">
-            </div>
-            
-            <!-- Details Section -->
-            <div class="text-base text-slate-300 flex flex-col justify-center space-y-4 w-full h-full md:py-4">
-                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                    <strong class="text-amber-500 min-w-[140px]">Project Name:</strong> 
-                    <span class="text-slate-100 font-medium">Pixel Guard (Image Based Encryption Tool)</span>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                    <strong class="text-amber-500 min-w-[140px]">Group Name:</strong> 
-                    <span class="text-slate-100 font-medium">Fantastic 4</span>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                    <strong class="text-amber-500 min-w-[140px]">Section:</strong> 
-                    <span class="text-slate-100 font-medium">A (G2)</span>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2">
-                    <strong class="text-amber-500 min-w-[140px]">Group Members:</strong> 
-                    <span class="text-slate-100 font-medium leading-relaxed">Anmol Kumar, Aryan Mishra, Anshuman Singh, Arjun Sharma</span>
-                </div>
-            </div>
-        </div>
         
         <div class="bg-blue-900/30 border border-blue-800 rounded-lg p-4 flex gap-4 items-start">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,8 +152,8 @@
             </svg>
             <div class="text-sm text-blue-100">
                 <p class="font-semibold text-blue-300 mb-1">How it works:</p>
-                <p>This tool uses a symmetric XOR pixel algorithm. Your password generates a unique mathematical stream that scrambles the RGB values of every pixel. 
-                <strong>To decrypt, you must upload the EXACT encrypted PNG and use the EXACT same password.</strong> Note: Encrypted images are always saved as PNGs. Saving as JPEG will compress the image and permanently destroy the encrypted data.</p>
+                <p>Crypta derives a 256-bit key with PBKDF2, encrypts the secret image with AES-GCM, and hides the authenticated payload inside a PNG cover image using RGB LSB steganography. 
+                <strong>Use the exact same password and PNG output when decrypting.</strong> Image data is processed locally in this browser.</p>
             </div>
         </div>
 
@@ -115,17 +163,17 @@
             <div class="flex flex-col gap-4">
                 <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-2">
                     <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span>
-                    Input Image
+                    Secret Image
                 </h2>
                 
                 <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-all cursor-pointer relative flex flex-col items-center justify-center min-h-[200px]">
-                    <input type="file" id="file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <input type="file" id="secret-file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <p class="text-slate-300 font-medium">Click to browse or drag & drop</p>
-                    <p class="text-slate-500 text-sm mt-1">Supports PNG, JPG, WEBP, GIF</p>
-                    <p id="file-name-display" class="mt-4 text-sm font-semibold text-emerald-400 truncate max-w-[250px]"></p>
+                    <p class="text-slate-500 text-sm mt-1">The image you want to protect</p>
+                    <p id="secret-file-name" class="mt-4 text-sm font-semibold text-emerald-400 truncate max-w-[250px]"></p>
                 </div>
                 
                 <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center canvas-container shadow-inner">
@@ -133,21 +181,24 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span class="text-sm">Original Preview</span>
+                        <span class="text-sm">Secret image preview</span>
                     </div>
                     <canvas id="canvas-input" class="max-w-full max-h-full hidden"></canvas>
                 </div>
             </div>
 
-            <!-- Output & Controls Section -->
+            <!-- Cover and Controls Section -->
             <div class="flex flex-col gap-4">
                 <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-2">
                     <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
-                    Process & Output
+                    Cover Image & Controls
                 </h2>
                 
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col gap-4 shadow-sm">
                     <div>
+                        <label for="cover-file-input" class="block text-sm font-medium text-slate-300 mb-1">Cover image</label>
+                        <input type="file" id="cover-file-input" accept="image/png,image/*" class="w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-500/20 file:px-3 file:py-2 file:text-indigo-200 hover:file:bg-indigo-500/30">
+                        <p id="cover-file-name" class="mt-2 text-xs text-slate-400">Choose a normal-looking PNG with enough capacity.</p>
                         <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Secret Key / Password</label>
                         <input type="password" id="password" placeholder="Enter a strong password..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
                     </div>
@@ -157,13 +208,16 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                             </svg>
-                            Encrypt / Decrypt
+                            Hide Secret Image
+                        </button>
+                        <button id="btn-decrypt" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                            Reveal Secret Image
                         </button>
                         <button id="btn-download" disabled class="flex-1 bg-emerald-600/50 text-emerald-200 font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-not-allowed">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            Save PNG
+                            Download Result
                         </button>
                     </div>
                 </div>
@@ -173,7 +227,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
-                        <span class="text-sm">Processed Result</span>
+                        <span class="text-sm">Encrypted cover or recovered secret</span>
                     </div>
                     
                     <!-- Loading Overlay -->
@@ -182,7 +236,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <p class="text-indigo-300 font-medium animate-pulse">Scrambling Pixels...</p>
+                        <p class="text-indigo-300 font-medium animate-pulse">Encrypting and embedding payload...</p>
                     </div>
                     
                     <canvas id="canvas-output" class="max-w-full max-h-full hidden shadow-2xl"></canvas>
@@ -248,11 +302,14 @@
         });
 
         // DOM Elements
-        const fileInput = document.getElementById('file-input');
+        const fileInput = document.getElementById('secret-file-input');
         const dropZone = document.getElementById('drop-zone');
-        const fileNameDisplay = document.getElementById('file-name-display');
+        const fileNameDisplay = document.getElementById('secret-file-name');
+        const coverFileInput = document.getElementById('cover-file-input');
+        const coverFileName = document.getElementById('cover-file-name');
         const passwordInput = document.getElementById('password');
         const btnProcess = document.getElementById('btn-process');
+        const btnDecrypt = document.getElementById('btn-decrypt');
         const btnDownload = document.getElementById('btn-download');
         
         const canvasInput = document.getElementById('canvas-input');
@@ -292,14 +349,19 @@
         btnCloseModal.addEventListener('click', hideMessage);
 
         // State
-        let currentImage = null;
-        let originalFileName = "encrypted_image";
+        let secretImage = null;
+        let coverImage = null;
+        let outputFileName = "crypta-encrypted.png";
 
         // --- File Handling Logic ---
 
-        // Handle file selection
+        // Handle secret-image selection
         fileInput.addEventListener('change', function(e) {
-            handleFile(e.target.files[0]);
+            loadImageFile(e.target.files[0], 'secret');
+        });
+
+        coverFileInput.addEventListener('change', function(e) {
+            loadImageFile(e.target.files[0], 'cover');
         });
 
         // Drag and drop events
@@ -316,39 +378,39 @@
             dropZone.classList.remove('border-indigo-400', 'bg-slate-800');
             if (e.dataTransfer.files.length) {
                 fileInput.files = e.dataTransfer.files;
-                handleFile(e.dataTransfer.files[0]);
+                loadImageFile(e.dataTransfer.files[0], 'secret');
             }
         });
 
-        function handleFile(file) {
+        function loadImageFile(file, role) {
             if (!file || !file.type.startsWith('image/')) {
                 showMessage("Please select a valid image file.");
                 return;
             }
 
-            // Extract name without extension for download later
-            originalFileName = file.name.split('.').slice(0, -1).join('.') || "image";
-            fileNameDisplay.textContent = file.name;
-            fileNameDisplay.classList.add('text-indigo-300');
+            if (role === 'secret') {
+                fileNameDisplay.textContent = file.name;
+                fileNameDisplay.classList.add('text-indigo-300');
+            } else {
+                coverFileName.textContent = `${file.name} selected.`;
+                coverFileName.classList.add('text-indigo-300');
+            }
 
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    currentImage = img;
-                    
-                    // Set input canvas dimensions
-                    canvasInput.width = img.width;
-                    canvasInput.height = img.height;
-                    
-                    // Draw to input canvas
-                    ctxInput.drawImage(img, 0, 0);
-                    
-                    // UI Updates
-                    canvasInput.classList.remove('hidden');
-                    inputPlaceholder.classList.add('hidden');
-                    
-                    // Reset output
+                    if (role === 'secret') {
+                        secretImage = img;
+                        canvasInput.width = img.width;
+                        canvasInput.height = img.height;
+                        ctxInput.clearRect(0, 0, img.width, img.height);
+                        ctxInput.drawImage(img, 0, 0);
+                        canvasInput.classList.remove('hidden');
+                        inputPlaceholder.classList.add('hidden');
+                    } else {
+                        coverImage = img;
+                    }
                     canvasOutput.classList.add('hidden');
                     outputPlaceholder.classList.remove('hidden');
                     btnDownload.disabled = true;
@@ -360,110 +422,155 @@
             reader.readAsDataURL(file);
         }
 
-        // --- Cryptography & Math Helpers ---
+        // --- AES-GCM and LSB steganography helpers ---
+        const textEncoder = new TextEncoder();
+        const textDecoder = new TextDecoder();
+        const payloadMagic = new Uint8Array([67, 82, 89, 80, 49]);
 
-        // Simple string hashing function to create a numeric seed from the password
-        function hashString(str) {
-            let hash = 0;
-            if (str.length === 0) return hash;
-            for (let i = 0; i < str.length; i++) {
-                let char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Convert to 32bit integer
-            }
-            return hash;
+        async function deriveKey(password, salt) {
+            const material = await crypto.subtle.importKey('raw', textEncoder.encode(password), 'PBKDF2', false, ['deriveKey']);
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
+                material,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
         }
 
-        // Mulberry32 Pseudo-Random Number Generator
-        // Very fast and suitable for generating a deterministic stream of bytes
-        function mulberry32(a) {
-            return function() {
-              var t = a += 0x6D2B79F5;
-              t = Math.imul(t ^ t >>> 15, t | 1);
-              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        function writeUint32(target, offset, value) {
+            new DataView(target.buffer).setUint32(offset, value);
+        }
+
+        function readUint32(source, offset) {
+            return new DataView(source.buffer, source.byteOffset).getUint32(offset);
+        }
+
+        function bytesFromDataUrl(dataUrl) {
+            const binary = atob(dataUrl.split(',')[1]);
+            return Uint8Array.from(binary, character => character.charCodeAt(0));
+        }
+
+        function dataUrlFromBytes(bytes) {
+            let binary = '';
+            const chunkSize = 0x8000;
+            for (let index = 0; index < bytes.length; index += chunkSize) {
+                binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+            }
+            return `data:image/png;base64,${btoa(binary)}`;
+        }
+
+        function embedPayload(imageData, payload) {
+            const capacity = Math.floor((imageData.data.length / 4) * 3);
+            if (payload.length * 8 > capacity) {
+                throw new Error('The cover image is too small for this secret image.');
+            }
+            let bitIndex = 0;
+            for (let index = 0; index < imageData.data.length && bitIndex < payload.length * 8; index += 4) {
+                for (let channel = 0; channel < 3 && bitIndex < payload.length * 8; channel++) {
+                    const byte = payload[Math.floor(bitIndex / 8)];
+                    const bit = (byte >> (7 - (bitIndex % 8))) & 1;
+                    imageData.data[index + channel] = (imageData.data[index + channel] & 0xfe) | bit;
+                    bitIndex++;
+                }
             }
         }
 
-        // --- Core Processing Logic ---
-        
-        btnProcess.addEventListener('click', () => {
-            if (!currentImage) {
-                showMessage("Please upload an image first.");
-                return;
+        function extractPayload(imageData) {
+            const bits = [];
+            for (let index = 0; index < imageData.data.length; index += 4) {
+                for (let channel = 0; channel < 3; channel++) bits.push(imageData.data[index + channel] & 1);
             }
-            
-            const password = passwordInput.value;
-            if (!password) {
-                showMessage("Please enter a password/key.");
-                return;
+            const bytes = new Uint8Array(Math.floor(bits.length / 8));
+            for (let index = 0; index < bytes.length; index++) {
+                for (let bit = 0; bit < 8; bit++) bytes[index] = (bytes[index] << 1) | bits[index * 8 + bit];
             }
+            if (!payloadMagic.every((value, index) => bytes[index] === value)) throw new Error('No Crypta payload was found in this image.');
+            const payloadLength = readUint32(bytes, 5);
+            const totalLength = 9 + payloadLength;
+            if (totalLength > bytes.length) throw new Error('The embedded payload is incomplete.');
+            return bytes.slice(9, totalLength);
+        }
 
-            // Show processing state (Yield to UI thread first using setTimeout)
+        // --- Core processing workflow ---
+        async function encryptIntoCover() {
+            if (!secretImage || !coverImage) throw new Error('Select both a secret image and a cover image.');
+            if (!passwordInput.value) throw new Error('Please enter a password/key.');
+
+            const secretCanvas = document.createElement('canvas');
+            secretCanvas.width = secretImage.width;
+            secretCanvas.height = secretImage.height;
+            secretCanvas.getContext('2d').drawImage(secretImage, 0, 0);
+            const secretBytes = bytesFromDataUrl(secretCanvas.toDataURL('image/png'));
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(passwordInput.value, salt);
+            const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, secretBytes));
+            const payload = new Uint8Array(16 + 12 + 4 + encrypted.length);
+            payload.set(salt, 0);
+            payload.set(iv, 16);
+            writeUint32(payload, 28, encrypted.length);
+            payload.set(encrypted, 32);
+
+            canvasOutput.width = coverImage.width;
+            canvasOutput.height = coverImage.height;
+            ctxOutput.drawImage(coverImage, 0, 0);
+            const outputData = ctxOutput.getImageData(0, 0, canvasOutput.width, canvasOutput.height);
+            const framedPayload = new Uint8Array(9 + payload.length);
+            framedPayload.set(payloadMagic, 0);
+            writeUint32(framedPayload, 5, payload.length);
+            framedPayload.set(payload, 9);
+            embedPayload(outputData, framedPayload);
+            ctxOutput.putImageData(outputData, 0, 0);
+            outputFileName = 'crypta-encrypted-cover.png';
+        }
+
+        async function decryptFromCover() {
+            if (!coverImage) throw new Error('Select the encrypted cover PNG.');
+            if (!passwordInput.value) throw new Error('Please enter a password/key.');
+
+            const coverCanvas = document.createElement('canvas');
+            coverCanvas.width = coverImage.width;
+            coverCanvas.height = coverImage.height;
+            const coverContext = coverCanvas.getContext('2d', { willReadFrequently: true });
+            coverContext.drawImage(coverImage, 0, 0);
+            const payload = extractPayload(coverContext.getImageData(0, 0, coverCanvas.width, coverCanvas.height));
+            const salt = payload.slice(0, 16);
+            const iv = payload.slice(16, 28);
+            const encryptedLength = readUint32(payload, 28);
+            const encrypted = payload.slice(32, 32 + encryptedLength);
+            const key = await deriveKey(passwordInput.value, salt);
+            const secretBytes = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted));
+            const recoveredUrl = dataUrlFromBytes(secretBytes);
+            const recoveredImage = new Image();
+            await new Promise((resolve, reject) => { recoveredImage.onload = resolve; recoveredImage.onerror = reject; recoveredImage.src = recoveredUrl; });
+            canvasOutput.width = recoveredImage.width;
+            canvasOutput.height = recoveredImage.height;
+            ctxOutput.drawImage(recoveredImage, 0, 0);
+            outputFileName = 'crypta-recovered-secret.png';
+        }
+
+        async function runProcessing(action) {
             processingOverlay.classList.remove('hidden');
             outputPlaceholder.classList.add('hidden');
             canvasOutput.classList.add('hidden');
-
-            setTimeout(() => {
-                try {
-                    processImage(password);
-                } catch (err) {
-                    console.error(err);
-                    showMessage("An error occurred during processing.");
-                    processingOverlay.classList.add('hidden');
-                }
-            }, 50); // Small delay allows the DOM to render the loading overlay
-        });
-
-        function processImage(password) {
-            const width = canvasInput.width;
-            const height = canvasInput.height;
-            
-            // Set output canvas size to match
-            canvasOutput.width = width;
-            canvasOutput.height = height;
-
-            // Get pixel data from input
-            const imageData = ctxInput.getImageData(0, 0, width, height);
-            const data = imageData.data;
-
-            // Initialize seeded PRNG
-            let seed = hashString(password);
-            // If hash is 0 (e.g. specific strings), give it a default offset to ensure scrambling
-            if(seed === 0) seed = 0x1A2B3C4D; 
-            const rand = mulberry32(seed);
-
-            // The core XOR Pixel manipulation
-            // Data array is flat: [R, G, B, A, R, G, B, A, ...]
-            for (let i = 0; i < data.length; i += 4) {
-                
-                // Generate 3 pseudo-random bytes (0-255) for R, G, B
-                const rMask = Math.floor(rand() * 256);
-                const gMask = Math.floor(rand() * 256);
-                const bMask = Math.floor(rand() * 256);
-
-                // XOR the original pixel value with the mask
-                // Using Bitwise XOR (^). Since (A ^ B) ^ B = A, this is fully symmetric/reversible
-                data[i]     = data[i]     ^ rMask; // Red
-                data[i + 1] = data[i + 1] ^ gMask; // Green
-                data[i + 2] = data[i + 2] ^ bMask; // Blue
-                
-                // Note: We deliberately skip data[i + 3] (Alpha channel) 
-                // Altering transparency can break image structure and cause saving issues.
+            try {
+                await action();
+                canvasOutput.classList.remove('hidden');
+                btnDownload.disabled = false;
+                btnDownload.classList.add('bg-emerald-600', 'text-white');
+                btnDownload.classList.remove('bg-emerald-600/50', 'text-emerald-200');
+            } catch (error) {
+                console.error(error);
+                showMessage(error.message || 'An error occurred during processing.');
+                outputPlaceholder.classList.remove('hidden');
+            } finally {
+                processingOverlay.classList.add('hidden');
             }
-
-            // Put processed data onto the output canvas
-            ctxOutput.putImageData(imageData, 0, 0);
-
-            // Update UI
-            processingOverlay.classList.add('hidden');
-            canvasOutput.classList.remove('hidden');
-            
-            // Enable Download
-            btnDownload.disabled = false;
-            btnDownload.classList.add('bg-emerald-600', 'text-white');
-            btnDownload.classList.remove('bg-emerald-600/50', 'text-emerald-200');
         }
+
+        btnProcess.addEventListener('click', () => runProcessing(encryptIntoCover));
+        btnDecrypt.addEventListener('click', () => runProcessing(decryptFromCover));
 
         // --- Download Logic ---
 
@@ -476,12 +583,7 @@
             // Create a temporary link element to trigger the download
             const link = document.createElement('a');
             
-            // Add a suffix to indicate it was processed
-            let newFileName = originalFileName.includes('_pixelguarded') 
-                ? originalFileName.replace('_pixelguarded', '_decrypted') 
-                : originalFileName + '_pixelguarded';
-                
-            link.download = newFileName + '.png';
+            link.download = outputFileName;
             link.href = dataURL;
             
             // Append, click, and cleanup
