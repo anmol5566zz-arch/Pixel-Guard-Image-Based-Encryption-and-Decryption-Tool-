@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypta - Image Encryption Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -151,9 +152,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div class="text-sm text-blue-100">
-                <p class="font-semibold text-blue-300 mb-1">How it works:</p>
-                <p>Crypta derives a 256-bit key with PBKDF2, encrypts the secret image with AES-GCM, and hides the authenticated payload inside a PNG cover image using RGB LSB steganography. 
-                <strong>Use the exact same password and PNG output when decrypting.</strong> Image data is processed locally in this browser.</p>
+                <p class="font-semibold text-blue-300 mb-1">How to encrypt/decrypt your image:</p>
+                <p>Choose a PNG image, select a password, and click <strong>Hide Secret Image</strong>. Crypta encrypts it with AES-GCM and creates one viewable QR PNG image, even for large files. To decrypt, upload that QR PNG, enter the same password, and click <strong>Reveal Secret Image</strong>. Processing stays local to this browser.</p>
             </div>
         </div>
 
@@ -167,12 +167,12 @@
                 </h2>
                 
                 <div id="drop-zone" class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-all cursor-pointer relative flex flex-col items-center justify-center min-h-[200px]">
-                    <input type="file" id="secret-file-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <input type="file" id="secret-file-input" accept="image/png,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <p class="text-slate-300 font-medium">Click to browse or drag & drop</p>
-                    <p class="text-slate-500 text-sm mt-1">The image you want to protect</p>
+                        <p class="text-slate-500 text-sm mt-1">PNG image you want to protect</p>
                     <p id="secret-file-name" class="mt-4 text-sm font-semibold text-emerald-400 truncate max-w-[250px]"></p>
                 </div>
                 
@@ -187,18 +187,18 @@
                 </div>
             </div>
 
-            <!-- Cover and Controls Section -->
+            <!-- Encryption Controls Section -->
             <div class="flex flex-col gap-4">
                 <h2 class="text-xl font-semibold text-slate-200 flex items-center gap-2">
                     <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
-                    Cover Image & Controls
+                    Encryption Controls
                 </h2>
                 
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col gap-4 shadow-sm">
                     <div>
-                        <label for="cover-file-input" class="block text-sm font-medium text-slate-300 mb-1">Cover image</label>
-                        <input type="file" id="cover-file-input" accept="image/png,image/*" class="w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-500/20 file:px-3 file:py-2 file:text-indigo-200 hover:file:bg-indigo-500/30">
-                        <p id="cover-file-name" class="mt-2 text-xs text-slate-400">Choose a normal-looking PNG with enough capacity.</p>
+                        <label for="encrypted-file-input" class="block text-sm font-medium text-slate-300 mb-1">Encrypted QR PNG for reveal</label>
+                        <input type="file" id="encrypted-file-input" accept="image/png,.png" class="w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-500/20 file:px-3 file:py-2 file:text-indigo-200 hover:file:bg-indigo-500/30">
+                        <p id="encrypted-file-name" class="mt-2 text-xs text-slate-400">Only needed when revealing an encrypted QR PNG.</p>
                         <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Secret Key / Password</label>
                         <input type="password" id="password" placeholder="Enter a strong password..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
                     </div>
@@ -227,7 +227,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
-                        <span class="text-sm">Encrypted cover or recovered secret</span>
+                        <span class="text-sm">Encrypted QR image or recovered secret</span>
                     </div>
                     
                     <!-- Loading Overlay -->
@@ -236,7 +236,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <p class="text-indigo-300 font-medium animate-pulse">Encrypting and embedding payload...</p>
+                        <p class="text-indigo-300 font-medium animate-pulse">Processing encrypted image...</p>
                     </div>
                     
                     <canvas id="canvas-output" class="max-w-full max-h-full hidden shadow-2xl"></canvas>
@@ -305,8 +305,8 @@
         const fileInput = document.getElementById('secret-file-input');
         const dropZone = document.getElementById('drop-zone');
         const fileNameDisplay = document.getElementById('secret-file-name');
-        const coverFileInput = document.getElementById('cover-file-input');
-        const coverFileName = document.getElementById('cover-file-name');
+        const encryptedFileInput = document.getElementById('encrypted-file-input');
+        const encryptedFileName = document.getElementById('encrypted-file-name');
         const passwordInput = document.getElementById('password');
         const btnProcess = document.getElementById('btn-process');
         const btnDecrypt = document.getElementById('btn-decrypt');
@@ -350,8 +350,10 @@
 
         // State
         let secretImage = null;
-        let coverImage = null;
-        let outputFileName = "crypta-encrypted.png";
+        let encryptedFile = null;
+        let outputBytes = null;
+        let outputFileName = 'crypta-encrypted.png';
+        const qrTileSize = 256;
 
         // --- File Handling Logic ---
 
@@ -360,8 +362,17 @@
             loadImageFile(e.target.files[0], 'secret');
         });
 
-        coverFileInput.addEventListener('change', function(e) {
-            loadImageFile(e.target.files[0], 'cover');
+        encryptedFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0] || null;
+            if (file && file.type !== 'image/png' && !/\.png$/i.test(file.name)) {
+                encryptedFileInput.value = '';
+                encryptedFile = null;
+                showMessage('Please select an encrypted QR PNG file.');
+                return;
+            }
+            encryptedFile = file;
+            encryptedFileName.textContent = encryptedFile ? `${encryptedFile.name} selected.` : 'Only needed when revealing an encrypted QR PNG.';
+            encryptedFileName.classList.toggle('text-indigo-300', Boolean(encryptedFile));
         });
 
         // Drag and drop events
@@ -383,17 +394,14 @@
         });
 
         function loadImageFile(file, role) {
-            if (!file || !file.type.startsWith('image/')) {
-                showMessage("Please select a valid image file.");
+            if (!file || (role === 'secret' && file.type !== 'image/png' && !/\.png$/i.test(file.name))) {
+                showMessage('Please select a PNG image file.');
                 return;
             }
 
             if (role === 'secret') {
                 fileNameDisplay.textContent = file.name;
                 fileNameDisplay.classList.add('text-indigo-300');
-            } else {
-                coverFileName.textContent = `${file.name} selected.`;
-                coverFileName.classList.add('text-indigo-300');
             }
 
             const reader = new FileReader();
@@ -408,8 +416,6 @@
                         ctxInput.drawImage(img, 0, 0);
                         canvasInput.classList.remove('hidden');
                         inputPlaceholder.classList.add('hidden');
-                    } else {
-                        coverImage = img;
                     }
                     canvasOutput.classList.add('hidden');
                     outputPlaceholder.classList.remove('hidden');
@@ -417,15 +423,18 @@
                     btnDownload.classList.remove('bg-emerald-600', 'text-white');
                     btnDownload.classList.add('bg-emerald-600/50', 'text-emerald-200');
                 }
+                img.onerror = function() {
+                    showMessage('The selected PNG file could not be opened by this browser.');
+                };
                 img.src = event.target.result;
             }
             reader.readAsDataURL(file);
         }
 
-        // --- AES-GCM and LSB steganography helpers ---
+        // --- AES-GCM helpers ---
         const textEncoder = new TextEncoder();
         const textDecoder = new TextDecoder();
-        const payloadMagic = new Uint8Array([67, 82, 89, 80, 49]);
+        const payloadMagic = new Uint8Array([67, 82, 89, 80, 50]);
 
         async function deriveKey(password, salt) {
             const material = await crypto.subtle.importKey('raw', textEncoder.encode(password), 'PBKDF2', false, ['deriveKey']);
@@ -451,50 +460,82 @@
             return Uint8Array.from(binary, character => character.charCodeAt(0));
         }
 
-        function dataUrlFromBytes(bytes) {
-            let binary = '';
-            const chunkSize = 0x8000;
-            for (let index = 0; index < bytes.length; index += chunkSize) {
-                binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
-            }
-            return `data:image/png;base64,${btoa(binary)}`;
-        }
-
-        function embedPayload(imageData, payload) {
-            const capacity = Math.floor((imageData.data.length / 4) * 3);
-            if (payload.length * 8 > capacity) {
-                throw new Error('The cover image is too small for this secret image.');
-            }
-            let bitIndex = 0;
-            for (let index = 0; index < imageData.data.length && bitIndex < payload.length * 8; index += 4) {
-                for (let channel = 0; channel < 3 && bitIndex < payload.length * 8; channel++) {
-                    const byte = payload[Math.floor(bitIndex / 8)];
-                    const bit = (byte >> (7 - (bitIndex % 8))) & 1;
-                    imageData.data[index + channel] = (imageData.data[index + channel] & 0xfe) | bit;
-                    bitIndex++;
+        function drawQrTile(value, targetContext, offsetX, offsetY) {
+            if (typeof qrcode !== 'function') throw new Error('The QR encoder could not be loaded. Check your internet connection and reload the page.');
+            const code = qrcode(0, 'L');
+            code.addData(value);
+            code.make();
+            const moduleCount = code.getModuleCount();
+            const matrixSize = moduleCount + 8;
+            const cellSize = Math.max(1, Math.floor(qrTileSize / matrixSize));
+            const drawnSize = matrixSize * cellSize;
+            const margin = Math.floor((qrTileSize - drawnSize) / 2);
+            targetContext.fillStyle = '#ffffff';
+            targetContext.fillRect(offsetX, offsetY, qrTileSize, qrTileSize);
+            targetContext.fillStyle = '#000000';
+            for (let row = 0; row < code.getModuleCount(); row++) {
+                for (let column = 0; column < code.getModuleCount(); column++) {
+                    if (code.isDark(row, column)) targetContext.fillRect(offsetX + margin + (column + 4) * cellSize, offsetY + margin + (row + 4) * cellSize, cellSize, cellSize);
                 }
             }
         }
 
-        function extractPayload(imageData) {
-            const bits = [];
-            for (let index = 0; index < imageData.data.length; index += 4) {
-                for (let channel = 0; channel < 3; channel++) bits.push(imageData.data[index + channel] & 1);
+        function drawSingleQrPreview() {
+            canvasOutput.width = qrTileSize;
+            canvasOutput.height = qrTileSize;
+            drawQrTile('CRYPTA|AES-GCM|PNG-PAYLOAD', ctxOutput, 0, 0);
+        }
+
+        function crc32(bytes) {
+            let crc = 0xffffffff;
+            for (const byte of bytes) {
+                crc ^= byte;
+                for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
             }
-            const bytes = new Uint8Array(Math.floor(bits.length / 8));
-            for (let index = 0; index < bytes.length; index++) {
-                for (let bit = 0; bit < 8; bit++) bytes[index] = (bytes[index] << 1) | bits[index * 8 + bit];
+            return (crc ^ 0xffffffff) >>> 0;
+        }
+
+        function createPngChunk(type, data) {
+            const chunk = new Uint8Array(12 + data.length);
+            const typeBytes = textEncoder.encode(type);
+            const crcInput = new Uint8Array(4 + data.length);
+            chunk.set(typeBytes, 4);
+            chunk.set(data, 8);
+            crcInput.set(typeBytes, 0);
+            crcInput.set(data, 4);
+            writeUint32(chunk, 0, data.length);
+            writeUint32(chunk, 8 + data.length, crc32(crcInput));
+            return chunk;
+        }
+
+        function addPayloadToPng(pngBytes, payload) {
+            const iendOffset = pngBytes.length - 12;
+            const chunk = createPngChunk('cRYp', payload);
+            const output = new Uint8Array(pngBytes.length + chunk.length);
+            output.set(pngBytes.slice(0, iendOffset), 0);
+            output.set(chunk, iendOffset);
+            output.set(pngBytes.slice(iendOffset), iendOffset + chunk.length);
+            return output;
+        }
+
+        async function extractPayloadFromPng(file) {
+            const pngBytes = new Uint8Array(await file.arrayBuffer());
+            const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+            if (!pngSignature.every((value, index) => pngBytes[index] === value)) throw new Error('This is not a valid PNG file.');
+            let offset = 8;
+            while (offset + 12 <= pngBytes.length) {
+                const length = readUint32(pngBytes, offset);
+                const type = new TextDecoder().decode(pngBytes.slice(offset + 4, offset + 8));
+                if (offset + 12 + length > pngBytes.length) break;
+                if (type === 'cRYp') return pngBytes.slice(offset + 8, offset + 8 + length);
+                offset += 12 + length;
             }
-            if (!payloadMagic.every((value, index) => bytes[index] === value)) throw new Error('No Crypta payload was found in this image.');
-            const payloadLength = readUint32(bytes, 5);
-            const totalLength = 9 + payloadLength;
-            if (totalLength > bytes.length) throw new Error('The embedded payload is incomplete.');
-            return bytes.slice(9, totalLength);
+            throw new Error('No Crypta encrypted payload was found in this PNG.');
         }
 
         // --- Core processing workflow ---
-        async function encryptIntoCover() {
-            if (!secretImage || !coverImage) throw new Error('Select both a secret image and a cover image.');
+        async function encryptImage() {
+            if (!secretImage) throw new Error('Select an image to encrypt.');
             if (!passwordInput.value) throw new Error('Please enter a password/key.');
 
             const secretCanvas = document.createElement('canvas');
@@ -506,48 +547,47 @@
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const key = await deriveKey(passwordInput.value, salt);
             const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, secretBytes));
-            const payload = new Uint8Array(16 + 12 + 4 + encrypted.length);
-            payload.set(salt, 0);
-            payload.set(iv, 16);
-            writeUint32(payload, 28, encrypted.length);
-            payload.set(encrypted, 32);
+            const payload = new Uint8Array(37 + encrypted.length);
+            payload.set(payloadMagic, 0);
+            payload.set(salt, 5);
+            payload.set(iv, 21);
+            writeUint32(payload, 33, encrypted.length);
+            payload.set(encrypted, 37);
 
-            canvasOutput.width = coverImage.width;
-            canvasOutput.height = coverImage.height;
-            ctxOutput.drawImage(coverImage, 0, 0);
-            const outputData = ctxOutput.getImageData(0, 0, canvasOutput.width, canvasOutput.height);
-            const framedPayload = new Uint8Array(9 + payload.length);
-            framedPayload.set(payloadMagic, 0);
-            writeUint32(framedPayload, 5, payload.length);
-            framedPayload.set(payload, 9);
-            embedPayload(outputData, framedPayload);
-            ctxOutput.putImageData(outputData, 0, 0);
-            outputFileName = 'crypta-encrypted-cover.png';
+            drawSingleQrPreview();
+            outputFileName = 'crypta-encrypted.png';
+            outputBytes = addPayloadToPng(bytesFromDataUrl(canvasOutput.toDataURL('image/png')), payload);
+            outputPlaceholder.querySelector('span').textContent = 'Encrypted QR PNG ready to download';
         }
 
-        async function decryptFromCover() {
-            if (!coverImage) throw new Error('Select the encrypted cover PNG.');
+        async function decryptImage() {
+            if (!encryptedFile) throw new Error('Select an encrypted PNG file.');
             if (!passwordInput.value) throw new Error('Please enter a password/key.');
 
-            const coverCanvas = document.createElement('canvas');
-            coverCanvas.width = coverImage.width;
-            coverCanvas.height = coverImage.height;
-            const coverContext = coverCanvas.getContext('2d', { willReadFrequently: true });
-            coverContext.drawImage(coverImage, 0, 0);
-            const payload = extractPayload(coverContext.getImageData(0, 0, coverCanvas.width, coverCanvas.height));
-            const salt = payload.slice(0, 16);
-            const iv = payload.slice(16, 28);
-            const encryptedLength = readUint32(payload, 28);
-            const encrypted = payload.slice(32, 32 + encryptedLength);
+            const payload = await extractPayloadFromPng(encryptedFile);
+            if (payload.length < 37 || !payloadMagic.every((value, index) => payload[index] === value)) throw new Error('This PNG does not contain a valid Crypta encrypted image.');
+            const salt = payload.slice(5, 21);
+            const iv = payload.slice(21, 33);
+            const encryptedLength = readUint32(payload, 33);
+            if (encryptedLength < 17 || 37 + encryptedLength > payload.length) throw new Error('The encrypted PNG payload is incomplete.');
+            const encrypted = payload.slice(37, 37 + encryptedLength);
             const key = await deriveKey(passwordInput.value, salt);
             const secretBytes = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted));
-            const recoveredUrl = dataUrlFromBytes(secretBytes);
+            const recoveredUrl = `data:image/png;base64,${bytesToBase64(secretBytes)}`;
             const recoveredImage = new Image();
             await new Promise((resolve, reject) => { recoveredImage.onload = resolve; recoveredImage.onerror = reject; recoveredImage.src = recoveredUrl; });
             canvasOutput.width = recoveredImage.width;
             canvasOutput.height = recoveredImage.height;
             ctxOutput.drawImage(recoveredImage, 0, 0);
             outputFileName = 'crypta-recovered-secret.png';
+            outputBytes = secretBytes;
+            outputPlaceholder.querySelector('span').textContent = 'Recovered secret image';
+        }
+
+        function bytesToBase64(bytes) {
+            let binary = '';
+            for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+            return btoa(binary);
         }
 
         async function runProcessing(action) {
@@ -569,27 +609,19 @@
             }
         }
 
-        btnProcess.addEventListener('click', () => runProcessing(encryptIntoCover));
-        btnDecrypt.addEventListener('click', () => runProcessing(decryptFromCover));
+        btnProcess.addEventListener('click', () => runProcessing(encryptImage));
+        btnDecrypt.addEventListener('click', () => runProcessing(decryptImage));
 
         // --- Download Logic ---
 
         btnDownload.addEventListener('click', () => {
-            // CRITICAL: We MUST save as image/png. 
-            // Saving as JPEG will apply lossy compression, permanently destroying the exact XOR values,
-            // making decryption impossible.
-            const dataURL = canvasOutput.toDataURL('image/png');
-            
-            // Create a temporary link element to trigger the download
             const link = document.createElement('a');
-            
             link.download = outputFileName;
-            link.href = dataURL;
-            
-            // Append, click, and cleanup
+            link.href = URL.createObjectURL(new Blob([outputBytes], { type: 'image/png' }));
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
         });
 
     </script>
