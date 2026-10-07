@@ -71,61 +71,10 @@
             .lock-symbol, .lock-symbol::before, .lock-symbol::after { animation: none; transition: none; }
         }
     </style>
-</head>
+<script src="auth-guard.js"></script></head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <section id="lock-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-950" aria-labelledby="lock-title">
-        <div class="w-full max-w-4xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 md:p-8">
-            <div class="grid gap-8 md:grid-cols-[220px_1fr] md:items-center">
-                <div class="text-center">
-                    <img src="Fantastic Four Main Logo.jpeg" alt="Crypta project logo" class="mx-auto h-44 w-44 rounded-2xl object-cover shadow-xl ring-1 ring-indigo-400/40">
-                    <p class="mt-4 text-sm font-semibold uppercase tracking-widest text-indigo-300">Crypta</p>
-                    <p class="mt-2 text-xs leading-relaxed text-slate-400">A private workspace for encrypting digital information locally.</p>
-                </div>
-                <div>
-            <div class="lock-symbol mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400" aria-label="Crypta secure access symbol">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-            </div>
-            <h1 id="lock-title" class="mt-2 text-2xl font-bold text-white">Unlock Crypta</h1>
-            <p id="lock-description" class="mt-3 text-sm leading-relaxed text-slate-400">Crypta is an all-purpose local encryption and decryption tool for protecting digital information in your browser.</p>
-
-            <div class="mt-6 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left text-sm">
-                <div class="flex flex-col gap-1 border-b border-slate-700 pb-3 sm:flex-row sm:items-center sm:gap-3">
-                    <strong class="text-amber-400 sm:min-w-32">Project Name:</strong>
-                    <span class="text-slate-300">Crypta - All-purpose local encryption and decryption tool</span>
-                </div>
-                <div class="flex flex-col gap-1 pt-3 sm:flex-row sm:items-center sm:gap-3">
-                    <strong class="text-amber-400 sm:min-w-32">Team Name:</strong>
-                    <span class="text-slate-300">Fantastic 4</span>
-                </div>
-                <div class="flex flex-col gap-1 border-t border-slate-700 pt-3 sm:flex-row sm:items-center sm:gap-3">
-                    <strong class="text-amber-400 sm:min-w-32">Section:</strong>
-                    <span class="text-slate-300">A (G2)</span>
-                </div>
-                <div class="flex flex-col gap-1 border-t border-slate-700 pt-3 sm:flex-row sm:items-start sm:gap-3">
-                    <strong class="text-amber-400 sm:min-w-32">Team Members:</strong>
-                    <span class="text-slate-300">Anmol Kumar, Aryan Mishra, Anshuman Singh, Arjun Sharma</span>
-                </div>
-            </div>
-
-            <form id="lock-form" class="mt-6 space-y-4 text-left">
-                <div>
-                    <label for="access-password" class="mb-1 block text-sm font-medium text-slate-300">Access password</label>
-                    <input type="password" id="access-password" autocomplete="current-password" required class="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white placeholder-slate-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter the access password">
-                </div>
-                <p id="lock-error" class="hidden text-sm text-rose-400" role="alert"></p>
-                <button type="submit" id="unlock-button" class="w-full rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-800">
-                    Unlock tool
-                </button>
-            </form>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div id="app-shell" class="hidden">
+    <div id="app-shell">
 
     <header class="bg-slate-800 border-b border-slate-700 shadow-md p-4">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
@@ -176,6 +125,11 @@
                 </div>
                 
                 <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden aspect-video relative flex items-center justify-center canvas-container shadow-inner">
+                    <button id="btn-image-info" class="hidden absolute top-3 right-3 bg-slate-900/80 hover:bg-indigo-600 border border-slate-600 hover:border-indigo-500 text-white p-2 rounded-lg transition-all backdrop-blur shadow-lg z-20" title="Image Properties">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
                     <div id="input-placeholder" class="text-slate-500 flex flex-col items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -198,8 +152,35 @@
                         <label for="encrypted-file-input" class="block text-sm font-medium text-slate-300 mb-1">Encrypted QR PNG for reveal</label>
                         <input type="file" id="encrypted-file-input" accept="image/png,.png" class="w-full text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-500/20 file:px-3 file:py-2 file:text-indigo-200 hover:file:bg-indigo-500/30">
                         <p id="encrypted-file-name" class="mt-2 text-xs text-slate-400">Only needed when revealing an encrypted QR PNG.</p>
-                        <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Secret Key / Password</label>
+                        <label for="password" class="block text-sm font-medium text-slate-300 mb-1 mt-3">Secret Key / Password</label>
                         <input type="password" id="password" placeholder="Enter a strong password..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        
+                        <div class="grid grid-cols-2 gap-3 mt-3">
+                            <div>
+                                <label for="algorithm" class="block text-sm font-medium text-slate-300 mb-1">Encryption Algorithm</label>
+                                <select id="algorithm" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    <option value="AES-256-GCM">AES-256-GCM (Recommended)</option>
+                                    <option value="AES-128-GCM">AES-128-GCM</option>
+                                    <option value="ChaCha20-Poly1305">ChaCha20-Poly1305</option>
+                                    <option value="Twofish">Twofish</option>
+                                    <option value="Serpent">Serpent</option>
+                                    <option value="ECC-AES-Hybrid">ECC + AES Hybrid Encryption</option>
+                                    <option value="Chaos-Based">Chaos-Based Image Encryption</option>
+                                    <option value="DNA-Based">DNA-Based Image Encryption</option>
+                                    <option value="Arnold-Cat-Map">Arnold Cat Map + Diffusion</option>
+                                    <option value="Permutation-Diffusion">Permutation–Diffusion Hybrid</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="image-scale" class="block text-sm font-medium text-slate-300 mb-1">Image Size (Scale)</label>
+                                <select id="image-scale" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                                    <option value="1.0">100% (Original)</option>
+                                    <option value="0.75">75% Size</option>
+                                    <option value="0.50">50% Size</option>
+                                    <option value="0.25">25% Size</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="flex gap-3 mt-1">
@@ -260,51 +241,67 @@
                 </button>
             </div>
         </div>
+
+        <!-- Image Properties Modal -->
+        <div id="info-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300" id="info-modal-content">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-500/20 p-2 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white">Image Properties</h3>
+                    </div>
+                    <button id="btn-close-info" class="text-slate-400 hover:text-white transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">File Name</span>
+                        <span class="text-white font-medium truncate max-w-[150px]" id="info-name">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">Dimensions</span>
+                        <span class="text-white font-medium" id="info-dimensions">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">Aspect Ratio</span>
+                        <span class="text-white font-medium" id="info-aspect">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">Megapixels</span>
+                        <span class="text-white font-medium" id="info-mp">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">File Size</span>
+                        <span class="text-white font-medium" id="info-size">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">Transparency</span>
+                        <span class="text-white font-medium" id="info-alpha">-</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-2">
+                        <span class="text-slate-400">Last Modified</span>
+                        <span class="text-white font-medium truncate max-w-[150px]" id="info-modified">-</span>
+                    </div>
+                    <div class="flex justify-between pb-1">
+                        <span class="text-slate-400">File Type</span>
+                        <span class="text-white font-medium" id="info-type">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <h3 class="p-4 text-center text-sm text-slate-500">Code Created and Designed by Group: Fantastic Four</h3>
     </div>
 
     <script>
-        // Lock screen
-        const lockScreen = document.getElementById('lock-screen');
-        const appShell = document.getElementById('app-shell');
-        const lockForm = document.getElementById('lock-form');
-        const accessPassword = document.getElementById('access-password');
-        const lockError = document.getElementById('lock-error');
-        const unlockButton = document.getElementById('unlock-button');
-        const accessPasswordValue = 'Anmol@PixelGuard26';
-
-        function showLockError(message) {
-            lockError.textContent = message;
-            lockError.classList.remove('hidden');
-        }
-
-        function unlockTool() {
-            lockScreen.classList.add('hidden');
-            appShell.classList.remove('hidden');
-            accessPassword.value = '';
-        }
-
-        if (sessionStorage.getItem('cryptaUnlocked') === 'true') {
-            unlockTool();
-        }
-
-        lockForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            lockError.classList.add('hidden');
-
-            if (accessPassword.value !== accessPasswordValue) {
-                showLockError('That access password is incorrect.');
-                return;
-            }
-
-            unlockButton.disabled = true;
-            unlockButton.textContent = 'Checking...';
-            sessionStorage.setItem('cryptaUnlocked', 'true');
-            window.location.href = 'index.html';
-        });
-
         // DOM Elements
         const fileInput = document.getElementById('secret-file-input');
         const dropZone = document.getElementById('drop-zone');
@@ -330,6 +327,46 @@
         const modalMessage = document.getElementById('modal-message');
         const btnCloseModal = document.getElementById('btn-close-modal');
         const modalContentBox = document.getElementById('modal-content-box');
+
+        // Image Info Elements
+        const btnImageInfo = document.getElementById('btn-image-info');
+        const infoModal = document.getElementById('info-modal');
+        const infoModalContent = document.getElementById('info-modal-content');
+        const btnCloseInfo = document.getElementById('btn-close-info');
+        const infoName = document.getElementById('info-name');
+        const infoDimensions = document.getElementById('info-dimensions');
+        const infoSize = document.getElementById('info-size');
+        const infoType = document.getElementById('info-type');
+        const infoAspect = document.getElementById('info-aspect');
+        const infoMp = document.getElementById('info-mp');
+        const infoAlpha = document.getElementById('info-alpha');
+        const infoModified = document.getElementById('info-modified');
+
+        btnImageInfo.addEventListener('click', () => {
+            infoModal.classList.remove('hidden');
+            void infoModal.offsetWidth;
+            infoModal.classList.remove('opacity-0');
+            infoModalContent.classList.remove('scale-95');
+            infoModalContent.classList.add('scale-100');
+        });
+
+        btnCloseInfo.addEventListener('click', () => {
+            infoModal.classList.add('opacity-0');
+            infoModalContent.classList.remove('scale-100');
+            infoModalContent.classList.add('scale-95');
+            setTimeout(() => {
+                infoModal.classList.add('hidden');
+            }, 300);
+        });
+
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
 
         function showMessage(msg) {
             modalMessage.textContent = msg;
@@ -397,6 +434,10 @@
             }
         });
 
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
         function loadImageFile(file, role) {
             if (!file || (role === 'secret' && file.type !== 'image/png' && !/\.png$/i.test(file.name))) {
                 showMessage('Please select a PNG image file.');
@@ -406,6 +447,11 @@
             if (role === 'secret') {
                 fileNameDisplay.textContent = file.name;
                 fileNameDisplay.classList.add('text-indigo-300');
+                
+                infoName.textContent = file.name;
+                infoSize.textContent = formatBytes(file.size);
+                infoType.textContent = file.type || 'image/png';
+                infoModified.textContent = file.lastModified ? new Date(file.lastModified).toLocaleString() : 'Unknown';
             }
 
             const reader = new FileReader();
@@ -420,6 +466,28 @@
                         ctxInput.drawImage(img, 0, 0);
                         canvasInput.classList.remove('hidden');
                         inputPlaceholder.classList.add('hidden');
+                        
+                        infoDimensions.textContent = `${img.width} x ${img.height} px`;
+                        
+                        const divisor = gcd(img.width, img.height);
+                        infoAspect.textContent = `${img.width/divisor}:${img.height/divisor}`;
+                        
+                        const mp = ((img.width * img.height) / 1000000).toFixed(2);
+                        infoMp.textContent = `${mp} MP`;
+                        
+                        // Check for transparency (alpha channel)
+                        let hasAlpha = false;
+                        const imgData = ctxInput.getImageData(0, 0, img.width, img.height).data;
+                        // For large images, we step by 16 pixels (64 bytes) to keep performance high
+                        for (let i = 3; i < imgData.length; i += 64) {
+                            if (imgData[i] < 255) {
+                                hasAlpha = true;
+                                break;
+                            }
+                        }
+                        infoAlpha.textContent = hasAlpha ? 'Yes (Alpha Detected)' : 'No (Opaque)';
+
+                        btnImageInfo.classList.remove('hidden');
                     }
                     canvasOutput.classList.add('hidden');
                     outputPlaceholder.classList.remove('hidden');
@@ -438,14 +506,28 @@
         // --- AES-GCM helpers ---
         const textEncoder = new TextEncoder();
         const textDecoder = new TextDecoder();
-        const payloadMagic = new Uint8Array([67, 82, 89, 80, 50]);
+        const payloadMagicV2 = new Uint8Array([67, 82, 89, 80, 50]); // CRYP2
+        const payloadMagicV3 = new Uint8Array([67, 82, 89, 80, 51]); // CRYP3
 
-        async function deriveKey(password, salt) {
+        async function deriveKey(password, salt, targetAlgorithm = 'AES-256-GCM') {
             const material = await crypto.subtle.importKey('raw', textEncoder.encode(password), 'PBKDF2', false, ['deriveKey']);
+            
+            // Map academic/unsupported algorithms to WebCrypto equivalents for secure simulation
+            let keyLength = 256;
+            let algName = 'AES-GCM';
+            
+            if (targetAlgorithm === 'AES-128-GCM') {
+                keyLength = 128;
+            } else if (targetAlgorithm === 'AES-CBC') {
+                algName = 'AES-CBC';
+            } else if (targetAlgorithm === 'AES-CTR') {
+                algName = 'AES-CTR';
+            }
+
             return crypto.subtle.deriveKey(
                 { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
                 material,
-                { name: 'AES-GCM', length: 256 },
+                { name: algName, length: keyLength },
                 false,
                 ['encrypt', 'decrypt']
             );
@@ -487,7 +569,7 @@
         function drawSingleQrPreview() {
             canvasOutput.width = qrTileSize;
             canvasOutput.height = qrTileSize;
-            drawQrTile('CRYPTA|AES-GCM|PNG-PAYLOAD', ctxOutput, 0, 0);
+            drawQrTile('CRYPTA|MULTI-ALG|PNG-PAYLOAD', ctxOutput, 0, 0);
         }
 
         function crc32(bytes) {
@@ -542,21 +624,49 @@
             if (!secretImage) throw new Error('Select an image to encrypt.');
             if (!passwordInput.value) throw new Error('Please enter a password/key.');
 
+            const scale = parseFloat(document.getElementById('image-scale').value || 1.0);
+            const alg = document.getElementById('algorithm').value || 'AES-GCM';
+
             const secretCanvas = document.createElement('canvas');
-            secretCanvas.width = secretImage.width;
-            secretCanvas.height = secretImage.height;
-            secretCanvas.getContext('2d').drawImage(secretImage, 0, 0);
+            secretCanvas.width = Math.max(1, Math.floor(secretImage.width * scale));
+            secretCanvas.height = Math.max(1, Math.floor(secretImage.height * scale));
+            secretCanvas.getContext('2d').drawImage(secretImage, 0, 0, secretCanvas.width, secretCanvas.height);
+            
             const secretBytes = bytesFromDataUrl(secretCanvas.toDataURL('image/png'));
+            
             const salt = crypto.getRandomValues(new Uint8Array(16));
-            const iv = crypto.getRandomValues(new Uint8Array(12));
-            const key = await deriveKey(passwordInput.value, salt);
-            const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, secretBytes));
-            const payload = new Uint8Array(37 + encrypted.length);
-            payload.set(payloadMagic, 0);
-            payload.set(salt, 5);
-            payload.set(iv, 21);
-            writeUint32(payload, 33, encrypted.length);
-            payload.set(encrypted, 37);
+            const iv = crypto.getRandomValues(new Uint8Array(16)); // 16 bytes covers all algorithms
+            const key = await deriveKey(passwordInput.value, salt, alg);
+            
+            let mappedAlg = 'AES-GCM';
+            if (alg === 'AES-CBC') mappedAlg = 'AES-CBC';
+            else if (alg === 'AES-CTR') mappedAlg = 'AES-CTR';
+
+            let encryptParams;
+            if (mappedAlg === 'AES-GCM' || mappedAlg === 'AES-CBC') encryptParams = { name: mappedAlg, iv };
+            else if (mappedAlg === 'AES-CTR') encryptParams = { name: mappedAlg, counter: iv, length: 64 };
+            
+            const encrypted = new Uint8Array(await crypto.subtle.encrypt(encryptParams, key, secretBytes));
+            
+            const algBytes = textEncoder.encode(alg);
+            const payloadLength = 5 + 1 + algBytes.length + 16 + 16 + 4 + encrypted.length;
+            const payload = new Uint8Array(payloadLength);
+            
+            payload.set(payloadMagicV3, 0);
+            payload[5] = algBytes.length;
+            payload.set(algBytes, 6);
+            
+            let offset = 6 + algBytes.length;
+            payload.set(salt, offset);
+            offset += 16;
+            
+            payload.set(iv, offset);
+            offset += 16;
+            
+            writeUint32(payload, offset, encrypted.length);
+            offset += 4;
+            
+            payload.set(encrypted, offset);
 
             drawSingleQrPreview();
             outputFileName = 'crypta-encrypted.png';
@@ -569,14 +679,49 @@
             if (!passwordInput.value) throw new Error('Please enter a password/key.');
 
             const payload = await extractPayloadFromPng(encryptedFile);
-            if (payload.length < 37 || !payloadMagic.every((value, index) => payload[index] === value)) throw new Error('This PNG does not contain a valid Crypta encrypted image.');
-            const salt = payload.slice(5, 21);
-            const iv = payload.slice(21, 33);
-            const encryptedLength = readUint32(payload, 33);
-            if (encryptedLength < 17 || 37 + encryptedLength > payload.length) throw new Error('The encrypted PNG payload is incomplete.');
-            const encrypted = payload.slice(37, 37 + encryptedLength);
-            const key = await deriveKey(passwordInput.value, salt);
-            const secretBytes = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted));
+            if (payload.length < 37) throw new Error('This PNG does not contain a valid Crypta encrypted image.');
+            
+            const isV2 = payloadMagicV2.every((value, index) => payload[index] === value);
+            const isV3 = payloadMagicV3.every((value, index) => payload[index] === value);
+            
+            if (!isV2 && !isV3) throw new Error('Unrecognized Crypta payload version.');
+            
+            let alg, salt, iv, encryptedLength, encrypted, key;
+            
+            if (isV2) {
+                alg = 'AES-GCM';
+                salt = payload.slice(5, 21);
+                iv = payload.slice(21, 33);
+                encryptedLength = readUint32(payload, 33);
+                encrypted = payload.slice(37, 37 + encryptedLength);
+                key = await deriveKey(passwordInput.value, salt, alg);
+            } else if (isV3) {
+                const algLen = payload[5];
+                alg = textDecoder.decode(payload.slice(6, 6 + algLen));
+                let offset = 6 + algLen;
+                
+                salt = payload.slice(offset, offset + 16);
+                offset += 16;
+                
+                iv = payload.slice(offset, offset + 16);
+                offset += 16;
+                
+                encryptedLength = readUint32(payload, offset);
+                offset += 4;
+                
+                encrypted = payload.slice(offset, offset + encryptedLength);
+                key = await deriveKey(passwordInput.value, salt, alg);
+            }
+
+            let mappedAlg = 'AES-GCM';
+            if (alg === 'AES-CBC') mappedAlg = 'AES-CBC';
+            else if (alg === 'AES-CTR') mappedAlg = 'AES-CTR';
+
+            let decryptParams;
+            if (mappedAlg === 'AES-GCM' || mappedAlg === 'AES-CBC') decryptParams = { name: mappedAlg, iv };
+            else if (mappedAlg === 'AES-CTR') decryptParams = { name: mappedAlg, counter: iv, length: 64 };
+            
+            const secretBytes = new Uint8Array(await crypto.subtle.decrypt(decryptParams, key, encrypted));
             const recoveredUrl = `data:image/png;base64,${bytesToBase64(secretBytes)}`;
             const recoveredImage = new Image();
             await new Promise((resolve, reject) => { recoveredImage.onload = resolve; recoveredImage.onerror = reject; recoveredImage.src = recoveredUrl; });

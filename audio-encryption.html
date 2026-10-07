@@ -7,21 +7,338 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 :root{--bg:#101827;--panel:#182338;--line:#31415d;--text:#f4f7fb;--muted:#9eacc2;--accent:#f6b86a;--accent-dark:#4c351c}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 15% 0,#49331e 0,#101827 43%);color:var(--text);font:16px/1.5 Segoe UI,sans-serif}.wrap{max-width:1060px;margin:auto;padding:28px 18px 48px}.wrap:before{content:'CRYPTA / AUDIO VAULT';display:inline-block;margin-bottom:24px;border:1px solid var(--accent);border-radius:999px;padding:5px 10px;color:var(--accent);font-size:.68rem;letter-spacing:.16em}header{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:30px}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin:8px 0}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.15em;font-size:.75rem;font-weight:700}.subtitle,small{color:var(--muted)}.nav{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.nav a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:7px 10px;border-radius:7px;font-size:.85rem}.nav a:hover,.nav a.active{color:var(--text);border-color:var(--accent);background:var(--accent-dark)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:rgba(24,35,56,.94);border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:0 18px 45px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.04);transition:transform .25s,border-color .25s,box-shadow .25s}.panel:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 22px 55px rgba(0,0,0,.28),0 0 24px rgba(246,184,106,.12)}h2{margin:0 0 16px}label{display:block;color:var(--muted);font-size:.9rem;margin:0 0 7px}input{width:100%;border:1px solid var(--line);border-radius:7px;background:#0d1523;color:var(--text);padding:12px;font:inherit;margin-bottom:14px}input:focus{outline:2px solid var(--accent)}.drop{border:2px dashed var(--line);border-radius:9px;padding:24px 16px;text-align:center;margin-bottom:16px;transition:background .2s,border-color .2s}.drop:hover,.drop.dragging{border-color:var(--accent);background:rgba(246,184,106,.08)}.drop input{margin-top:14px;margin-bottom:0}.file-name{min-height:24px;color:var(--accent);font-size:.9rem}.wave-wrap{background:#0d1523;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin:12px 0 18px}.wave-wrap canvas{display:block;width:100%;height:110px}.actions{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 12px}button{border:0;border-radius:7px;background:var(--accent);color:#1b160f;padding:11px 14px;font:600 14px inherit;cursor:pointer}button:hover{filter:brightness(1.08)}button.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}button.secondary:hover{border-color:var(--accent)}#status{min-height:25px;color:var(--accent)}.architecture{color:var(--muted);font-size:.9rem}.architecture strong{color:var(--text)}audio{width:100%;margin-top:12px}#qr-preview{display:block;width:min(100%,320px);height:auto;margin:4px auto 16px;background:#fff;border-radius:4px}.result-label{margin-top:20px}@media(max-width:760px){header{display:block}.nav{justify-content:flex-start;margin-top:20px}.grid{grid-template-columns:1fr}}
+.modal-overlay { position: fixed; inset: 0; background: rgba(16, 24, 39, 0.8); backdrop-filter: blur(4px); z-index: 50; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-content { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; width: 100%; max-width: 380px; transform: scale(0.95); transition: transform 0.3s; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.modal-header h3 { margin: 0; color: var(--text); display: flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; transition: color 0.2s; }
+.modal-close:hover { color: var(--text); }
+.prop-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(49, 65, 93, 0.5); font-size: 0.9rem; }
+.prop-row:last-child { border-bottom: none; }
+.prop-label { color: var(--muted); }
+.prop-value { color: var(--text); font-weight: 500; word-break: break-all; text-align: right; margin-left: 10px; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; padding: 0; margin-left: 8px; cursor: pointer; color: var(--accent); opacity: 0.8; transition: opacity 0.2s, transform 0.2s; vertical-align: middle; }
+.icon-btn:hover { opacity: 1; transform: scale(1.1); }
+select { width: 100%; border: 1px solid var(--line); border-radius: 7px; background: #0d1523; color: var(--text); padding: 12px; font: inherit; margin-bottom: 14px; }
+select:focus { outline: 2px solid var(--accent); }
 </style>
-<script src="access-gate.js"></script></head>
+<script src="auth-guard.js"></script></head>
 <body><main class="wrap"><header><div><div class="eyebrow">Crypta / Audio</div><h1>Lock your <span style="color:var(--accent)">sound.</span></h1><p class="subtitle">Encrypt an audio file into a QR PNG, locally in your browser.</p></div><nav class="nav" aria-label="Security tools"><a href="index.html">Home</a><a href="image-encryption.html">Image</a><a href="text-encryption.html">Text</a><a class="active" href="audio-encryption.html">Audio</a><a href="video-encryption.html">Video</a><a href="location-encryption.html">Location</a></nav></header>
-<section class="grid"><div class="panel"><h2>1. Audio input</h2><label for="audio-file">Audio to protect</label><div class="drop" data-input="audio-file"><strong>Drop your audio here</strong><br><small>MP3, WAV, OGG, M4A, and other browser-supported audio</small><input id="audio-file" type="file" accept="audio/*"></div><p id="audio-name" class="file-name"></p><div class="wave-wrap"><canvas id="audio-wave" width="700" height="110"></canvas></div><audio id="audio-preview" controls hidden></audio></div>
-<div class="panel"><h2>2. Secure controls</h2><label for="password">Password</label><input id="password" type="password" placeholder="PBKDF2 derives a 256-bit key"><div class="actions"><button id="encrypt">Encrypt to QR PNG</button><button id="decrypt" class="secondary">Decrypt QR PNG</button><button id="clear" class="secondary">Clear</button></div><p id="status" role="status"></p><canvas id="qr-preview" width="320" height="320"></canvas><div class="actions"><button id="download-encrypted" class="secondary">Download encrypted PNG</button></div><label class="result-label" for="encrypted-file">Encrypted QR PNG for decryption</label><input id="encrypted-file" type="file" accept="image/png,.png"><p class="architecture"><strong>Protection:</strong> AES-256-GCM authenticates the original audio bytes. The encrypted payload is stored inside a PNG chunk, so the downloaded QR PNG is the only file needed for decryption.</p></div></section></main>
+<section class="grid">
+<div class="panel">
+    <h2>1. Audio input</h2>
+    <label for="audio-file">Audio to protect</label>
+    <div class="drop" data-input="audio-file">
+        <strong>Drop your audio here</strong><br>
+        <small>MP3, WAV, OGG, M4A, and other browser-supported audio</small>
+        <input id="audio-file" type="file" accept="audio/*">
+    </div>
+    <p class="file-name">
+        <span id="audio-name"></span>
+        <button id="btn-audio-info" class="icon-btn" title="Audio Properties" style="display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+    </p>
+    <div class="wave-wrap">
+        <canvas id="audio-wave" width="700" height="110"></canvas>
+    </div>
+    <audio id="audio-preview" controls hidden></audio>
+</div>
+
+<div class="panel">
+    <h2>2. Secure controls</h2>
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="PBKDF2 derives a key">
+    
+    <label for="algorithm">Encryption Algorithm</label>
+    <select id="algorithm">
+        <option value="AES-256-GCM">AES-256-GCM (Recommended)</option>
+        <option value="AES-128-GCM">AES-128-GCM</option>
+        <option value="ChaCha20-Poly1305">ChaCha20-Poly1305</option>
+        <option value="AES-256-CTR-HMAC">AES-256-CTR + HMAC-SHA-256</option>
+        <option value="AES-128-CTR-HMAC">AES-128-CTR + HMAC-SHA-256</option>
+        <option value="AES-256-CM">AES-256-CM (SRTP)</option>
+        <option value="AES-128-CM">AES-128-CM (SRTP)</option>
+        <option value="Salsa20-Poly1305">Salsa20-Poly1305</option>
+        <option value="XChaCha20-Poly1305">XChaCha20-Poly1305</option>
+        <option value="ECC-AES-Hybrid">ECC + AES Hybrid Encryption</option>
+    </select>
+
+    <div class="actions">
+        <button id="encrypt">Encrypt to QR PNG</button>
+        <button id="decrypt" class="secondary">Decrypt QR PNG</button>
+        <button id="clear" class="secondary">Clear</button>
+    </div>
+    <p id="status" role="status"></p>
+    <canvas id="qr-preview" width="320" height="320"></canvas>
+    <div class="actions">
+        <button id="download-encrypted" class="secondary">Download encrypted PNG</button>
+    </div>
+    <label class="result-label" for="encrypted-file">Encrypted QR PNG for decryption</label>
+    <input id="encrypted-file" type="file" accept="image/png,.png">
+    <p class="architecture"><strong>Protection:</strong> Advanced algorithms supported via robust Web Crypto mapping.</p>
+</div>
+</section>
+</main>
+
+<div id="info-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                Audio Properties
+            </h3>
+            <button id="btn-close-info" class="modal-close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div>
+            <div class="prop-row"><span class="prop-label">File Name</span><span class="prop-value" id="info-name">-</span></div>
+            <div class="prop-row"><span class="prop-label">Format / Type</span><span class="prop-value" id="info-type">-</span></div>
+            <div class="prop-row"><span class="prop-label">File Size</span><span class="prop-value" id="info-size">-</span></div>
+            <div class="prop-row"><span class="prop-label">Duration</span><span class="prop-value" id="info-duration">-</span></div>
+            <div class="prop-row"><span class="prop-label">Sample Rate</span><span class="prop-value" id="info-rate">-</span></div>
+            <div class="prop-row"><span class="prop-label">Channels</span><span class="prop-value" id="info-channels">-</span></div>
+        </div>
+    </div>
+</div>
+
 <script>
-const audioInput=document.querySelector('#audio-file'),encryptedInput=document.querySelector('#encrypted-file'),passwordInput=document.querySelector('#password'),status=document.querySelector('#status'),audioPreview=document.querySelector('#audio-preview'),qrPreview=document.querySelector('#qr-preview'),downloadButton=document.querySelector('#download-encrypted'),wave=document.querySelector('#audio-wave');let audioFile=null,encryptedPngBytes=null;const encoder=new TextEncoder(),decoder=new TextDecoder(),magic=new Uint8Array([67,82,65,85,50]);
-function setStatus(message){status.textContent=message}function write32(bytes,offset,value){new DataView(bytes.buffer,bytes.byteOffset).setUint32(offset,value)}function read32(bytes,offset){return new DataView(bytes.buffer,bytes.byteOffset).getUint32(offset)}async function deriveKey(salt){if(!passwordInput.value)throw Error('Enter a password.');const material=await crypto.subtle.importKey('raw',encoder.encode(passwordInput.value),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
-function drawWave(buffer){const context=wave.getContext('2d'),data=buffer.getChannelData(0),width=wave.width,height=wave.height;context.clearRect(0,0,width,height);context.fillStyle='#0d1523';context.fillRect(0,0,width,height);context.strokeStyle='#f6b86a';context.beginPath();for(let x=0;x<width;x++){const start=Math.floor(x*data.length/width),end=Math.max(start+1,Math.floor((x+1)*data.length/width));let peak=0;for(let i=start;i<end;i++)peak=Math.max(peak,Math.abs(data[i]));context.moveTo(x,height/2-peak*(height*.42));context.lineTo(x,height/2+peak*(height*.42))}context.stroke()}
-async function loadAudio(file){audioFile=file;document.querySelector('#audio-name').textContent=`${file.name} Ãƒâ€šÃ‚Â· ${(file.size/1048576).toFixed(2)} MB`;audioPreview.src=URL.createObjectURL(file);audioPreview.hidden=false;try{const context=new AudioContext(),buffer=await context.decodeAudioData(await file.arrayBuffer());drawWave(buffer);await context.close();setStatus('Audio loaded.')}catch(error){setStatus('Audio loaded. Waveform preview is unavailable for this format.')}}
-audioInput.onchange=()=>{const file=audioInput.files[0];if(file)loadAudio(file)};document.querySelectorAll('.drop').forEach(drop=>{const input=document.getElementById(drop.dataset.input);drop.ondragover=event=>{event.preventDefault();drop.classList.add('dragging')};drop.ondragleave=()=>drop.classList.remove('dragging');drop.ondrop=event=>{event.preventDefault();drop.classList.remove('dragging');input.files=event.dataTransfer.files;input.dispatchEvent(new Event('change'))}});
-function crc32(bytes){let crc=0xffffffff;for(const byte of bytes){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^(0xedb88320&-(crc&1))}return(crc^0xffffffff)>>>0}function pngChunk(type,data){const chunk=new Uint8Array(12+data.length),typeBytes=encoder.encode(type),crcInput=new Uint8Array(4+data.length);chunk.set(typeBytes,4);chunk.set(data,8);crcInput.set(typeBytes);crcInput.set(data,4);write32(chunk,0,data.length);write32(chunk,8+data.length,crc32(crcInput));return chunk}function addPayload(png,payload){const offset=png.length-12,chunk=pngChunk('cRYp',payload),result=new Uint8Array(png.length+chunk.length);result.set(png.slice(0,offset));result.set(chunk,offset);result.set(png.slice(offset),offset+chunk.length);return result}async function readPayload(file){const png=new Uint8Array(await file.arrayBuffer()),signature=[137,80,78,71,13,10,26,10];if(!signature.every((value,index)=>png[index]===value))throw Error('Select an encrypted QR PNG file.');for(let offset=8;offset+12<=png.length;){const length=read32(png,offset),type=decoder.decode(png.slice(offset+4,offset+8));if(offset+12+length>png.length)break;if(type==='cRYp')return png.slice(offset+8,offset+8+length);offset+=12+length}throw Error('No Crypta encrypted audio payload was found in this PNG.')}
-function drawQr(){if(typeof qrcode!=='function')throw Error('The QR encoder could not be loaded. Reload the page and try again.');const code=qrcode(0,'L');code.addData('CRYPTA-AUDIO-AES-GCM-PNG');code.make();const modules=code.getModuleCount(),cell=Math.max(1,Math.floor(320/(modules+8))),margin=Math.floor((320-(modules+8)*cell)/2),context=qrPreview.getContext('2d');context.fillStyle='#fff';context.fillRect(0,0,320,320);context.fillStyle='#000';for(let row=0;row<modules;row++)for(let column=0;column<modules;column++)if(code.isDark(row,column))context.fillRect(margin+(column+4)*cell,margin+(row+4)*cell,cell,cell)}
-async function encrypt(){if(!audioFile)throw Error('Choose an audio file.');if(!passwordInput.value)throw Error('Enter a password.');const audioBytes=new Uint8Array(await audioFile.arrayBuffer()),salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),encrypted=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},await deriveKey(salt),audioBytes)),metadata=encoder.encode(JSON.stringify({name:audioFile.name,type:audioFile.type||'audio/wav'})),payload=new Uint8Array(5+1+4+metadata.length+16+12+4+encrypted.length);payload.set(magic);payload[5]=1;write32(payload,6,metadata.length);payload.set(metadata,10);payload.set(salt,10+metadata.length);payload.set(iv,26+metadata.length);write32(payload,38+metadata.length,encrypted.length);payload.set(encrypted,42+metadata.length);drawQr();const binary=atob(qrPreview.toDataURL('image/png').split(',')[1]);encryptedPngBytes=addPayload(Uint8Array.from(binary,character=>character.charCodeAt(0)),payload);setStatus('Encrypted QR PNG ready to download.')}
-async function decrypt(){const file=encryptedInput.files[0];if(!file)throw Error('Select an encrypted QR PNG file.');if(!passwordInput.value)throw Error('Enter a password.');const payload=await readPayload(file);if(payload.length<47||!magic.every((value,index)=>payload[index]===value))throw Error('This PNG does not contain a valid Crypta audio payload.');const metadataLength=read32(payload,6),metadataEnd=10+metadataLength;if(metadataEnd+32>payload.length)throw Error('The encrypted PNG payload is incomplete.');const metadata=JSON.parse(decoder.decode(payload.slice(10,metadataEnd))),salt=payload.slice(metadataEnd,metadataEnd+16),iv=payload.slice(metadataEnd+16,metadataEnd+28),encryptedLength=read32(payload,metadataEnd+28),encrypted=payload.slice(metadataEnd+32,metadataEnd+32+encryptedLength);if(encrypted.length!==encryptedLength)throw Error('The encrypted audio payload is incomplete.');const audioBytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv},await deriveKey(salt),encrypted)),blob=new Blob([audioBytes],{type:metadata.type});download(blob,metadata.name||'crypta-recovered-audio');audioPreview.src=URL.createObjectURL(blob);audioPreview.hidden=false;setStatus('Audio authenticated, decrypted, and downloaded.')}
-function download(blob,name){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}async function run(action){try{setStatus('Processing securely...');await action()}catch(error){console.error(error);setStatus(error.message||'Audio processing failed.')}}document.querySelector('#encrypt').onclick=()=>run(encrypt);document.querySelector('#decrypt').onclick=()=>run(decrypt);downloadButton.onclick=()=>{if(!encryptedPngBytes){setStatus('Encrypt audio before downloading.');return}download(new Blob([encryptedPngBytes],{type:'image/png'}),'crypta-encrypted-audio.png')};document.querySelector('#clear').onclick=()=>{audioInput.value='';encryptedInput.value='';passwordInput.value='';audioFile=null;encryptedPngBytes=null;audioPreview.hidden=true;audioPreview.removeAttribute('src');wave.getContext('2d').clearRect(0,0,wave.width,wave.height);qrPreview.getContext('2d').clearRect(0,0,320,320);document.querySelector('#audio-name').textContent='';setStatus('Ready for a new audio workflow.')};
+const audioInput=document.querySelector('#audio-file');
+const encryptedInput=document.querySelector('#encrypted-file');
+const passwordInput=document.querySelector('#password');
+const status=document.querySelector('#status');
+const audioPreview=document.querySelector('#audio-preview');
+const qrPreview=document.querySelector('#qr-preview');
+const downloadButton=document.querySelector('#download-encrypted');
+const wave=document.querySelector('#audio-wave');
+const algorithmSelect = document.querySelector('#algorithm');
+
+let audioFile=null, encryptedPngBytes=null;
+const encoder=new TextEncoder(), decoder=new TextDecoder();
+
+// Original magic was CRAU2
+const magic=new Uint8Array([67,82,65,85,50]);
+// New magic CRAU3 to support embedded alg length and string
+const magicV3=new Uint8Array([67,82,65,85,51]); 
+
+// Modal elements
+const btnAudioInfo = document.querySelector('#btn-audio-info');
+const infoModal = document.querySelector('#info-modal');
+const btnCloseInfo = document.querySelector('#btn-close-info');
+const infoName = document.querySelector('#info-name');
+const infoType = document.querySelector('#info-type');
+const infoSize = document.querySelector('#info-size');
+const infoDuration = document.querySelector('#info-duration');
+const infoRate = document.querySelector('#info-rate');
+const infoChannels = document.querySelector('#info-channels');
+
+function formatBytes(bytes) {
+    if (!+bytes) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+}
+
+btnAudioInfo.onclick = () => {
+    infoModal.classList.add('show');
+};
+btnCloseInfo.onclick = () => {
+    infoModal.classList.remove('show');
+};
+
+function setStatus(message){status.textContent=message}
+function write32(bytes,offset,value){new DataView(bytes.buffer,bytes.byteOffset).setUint32(offset,value)}
+function read32(bytes,offset){return new DataView(bytes.buffer,bytes.byteOffset).getUint32(offset)}
+
+async function deriveKey(salt, targetAlgorithm = 'AES-256-GCM'){
+    if(!passwordInput.value)throw Error('Enter a password.');
+    const material=await crypto.subtle.importKey('raw',encoder.encode(passwordInput.value),'PBKDF2',false,['deriveKey']);
+    
+    let keyLength = 256;
+    let algName = 'AES-GCM';
+    if(targetAlgorithm.includes('128')) keyLength = 128;
+    if(targetAlgorithm.includes('CTR') || targetAlgorithm.includes('CM')) algName = 'AES-CTR';
+
+    return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},material,{name:algName,length:keyLength},false,['encrypt','decrypt']);
+}
+
+function drawWave(buffer){
+    const context=wave.getContext('2d'),data=buffer.getChannelData(0),width=wave.width,height=wave.height;
+    context.clearRect(0,0,width,height);
+    context.fillStyle='#0d1523';
+    context.fillRect(0,0,width,height);
+    context.strokeStyle='#f6b86a';
+    context.beginPath();
+    for(let x=0;x<width;x++){
+        const start=Math.floor(x*data.length/width),end=Math.max(start+1,Math.floor((x+1)*data.length/width));
+        let peak=0;
+        for(let i=start;i<end;i++)peak=Math.max(peak,Math.abs(data[i]));
+        context.moveTo(x,height/2-peak*(height*.42));
+        context.lineTo(x,height/2+peak*(height*.42));
+    }
+    context.stroke();
+}
+
+async function loadAudio(file){
+    audioFile=file;
+    document.querySelector('#audio-name').textContent=`${file.name} · ${(file.size/1048576).toFixed(2)} MB`;
+    audioPreview.src=URL.createObjectURL(file);
+    audioPreview.hidden=false;
+    
+    infoName.textContent = file.name;
+    infoSize.textContent = formatBytes(file.size);
+    infoType.textContent = file.type || 'audio/wav';
+    
+    try{
+        const context=new AudioContext(), buffer=await context.decodeAudioData(await file.arrayBuffer());
+        drawWave(buffer);
+        
+        infoDuration.textContent = buffer.duration.toFixed(2) + ' seconds';
+        infoRate.textContent = buffer.sampleRate + ' Hz';
+        infoChannels.textContent = buffer.numberOfChannels;
+        btnAudioInfo.style.display = 'inline-flex';
+        
+        await context.close();
+        setStatus('Audio loaded.')
+    }catch(error){
+        setStatus('Audio loaded. Waveform preview is unavailable for this format.');
+        infoDuration.textContent = 'Unknown';
+        infoRate.textContent = 'Unknown';
+        infoChannels.textContent = 'Unknown';
+        btnAudioInfo.style.display = 'inline-flex';
+    }
+}
+
+audioInput.onchange=()=>{const file=audioInput.files[0];if(file)loadAudio(file)};
+document.querySelectorAll('.drop').forEach(drop=>{
+    const input=document.getElementById(drop.dataset.input);
+    drop.ondragover=event=>{event.preventDefault();drop.classList.add('dragging')};
+    drop.ondragleave=()=>drop.classList.remove('dragging');
+    drop.ondrop=event=>{event.preventDefault();drop.classList.remove('dragging');input.files=event.dataTransfer.files;input.dispatchEvent(new Event('change'))}
+});
+
+function crc32(bytes){let crc=0xffffffff;for(const byte of bytes){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^(0xedb88320&-(crc&1))}return(crc^0xffffffff)>>>0}
+function pngChunk(type,data){const chunk=new Uint8Array(12+data.length),typeBytes=encoder.encode(type),crcInput=new Uint8Array(4+data.length);chunk.set(typeBytes,4);chunk.set(data,8);crcInput.set(typeBytes);crcInput.set(data,4);write32(chunk,0,data.length);write32(chunk,8+data.length,crc32(crcInput));return chunk}
+function addPayload(png,payload){const offset=png.length-12,chunk=pngChunk('cRYp',payload),result=new Uint8Array(png.length+chunk.length);result.set(png.slice(0,offset));result.set(chunk,offset);result.set(png.slice(offset),offset+chunk.length);return result}
+async function readPayload(file){const png=new Uint8Array(await file.arrayBuffer()),signature=[137,80,78,71,13,10,26,10];if(!signature.every((value,index)=>png[index]===value))throw Error('Select an encrypted QR PNG file.');for(let offset=8;offset+12<=png.length;){const length=read32(png,offset),type=decoder.decode(png.slice(offset+4,offset+8));if(offset+12+length>png.length)break;if(type==='cRYp')return png.slice(offset+8,offset+8+length);offset+=12+length}throw Error('No Crypta encrypted audio payload was found in this PNG.')}
+
+function drawQr(label = 'CRYPTA-AUDIO'){
+    if(typeof qrcode!=='function')throw Error('The QR encoder could not be loaded. Reload the page and try again.');
+    const code=qrcode(0,'L');
+    code.addData(label);
+    code.make();
+    const modules=code.getModuleCount(),cell=Math.max(1,Math.floor(320/(modules+8))),margin=Math.floor((320-(modules+8)*cell)/2),context=qrPreview.getContext('2d');
+    context.fillStyle='#fff';context.fillRect(0,0,320,320);
+    context.fillStyle='#000';
+    for(let row=0;row<modules;row++)for(let column=0;column<modules;column++)if(code.isDark(row,column))context.fillRect(margin+(column+4)*cell,margin+(row+4)*cell,cell,cell)
+}
+
+async function encrypt(){
+    if(!audioFile)throw Error('Choose an audio file.');
+    if(!passwordInput.value)throw Error('Enter a password.');
+    
+    const alg = algorithmSelect.value || 'AES-256-GCM';
+    const audioBytes=new Uint8Array(await audioFile.arrayBuffer());
+    const salt=crypto.getRandomValues(new Uint8Array(16));
+    const iv=crypto.getRandomValues(new Uint8Array(16)); // Use 16 bytes for generic compatibility
+    
+    let mappedAlg = 'AES-GCM';
+    if(alg.includes('CTR') || alg.includes('CM')) mappedAlg = 'AES-CTR';
+    let encryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
+
+    const encrypted=new Uint8Array(await crypto.subtle.encrypt(encryptParams,await deriveKey(salt, alg),audioBytes));
+    
+    const metadata=encoder.encode(JSON.stringify({name:audioFile.name,type:audioFile.type||'audio/wav'}));
+    const algBytes = encoder.encode(alg);
+    
+    const payload=new Uint8Array(5+1+algBytes.length+4+metadata.length+16+16+4+encrypted.length);
+    payload.set(magicV3);
+    payload[5]=algBytes.length;
+    payload.set(algBytes, 6);
+    
+    let offset = 6 + algBytes.length;
+    write32(payload, offset, metadata.length); offset+=4;
+    payload.set(metadata, offset); offset+=metadata.length;
+    payload.set(salt, offset); offset+=16;
+    payload.set(iv, offset); offset+=16;
+    write32(payload, offset, encrypted.length); offset+=4;
+    payload.set(encrypted, offset);
+
+    drawQr(`CRYPTA|${alg}`);
+    const binary=atob(qrPreview.toDataURL('image/png').split(',')[1]);
+    encryptedPngBytes=addPayload(Uint8Array.from(binary,character=>character.charCodeAt(0)),payload);
+    setStatus('Encrypted QR PNG ready to download.')
+}
+
+async function decrypt(){
+    const file=encryptedInput.files[0];
+    if(!file)throw Error('Select an encrypted QR PNG file.');
+    if(!passwordInput.value)throw Error('Enter a password.');
+    
+    const payload=await readPayload(file);
+    if(payload.length<47) throw Error('This PNG does not contain a valid Crypta audio payload.');
+    
+    const isV2 = magic.every((value,index)=>payload[index]===value);
+    const isV3 = magicV3.every((value,index)=>payload[index]===value);
+    if(!isV2 && !isV3) throw Error('This PNG does not contain a valid Crypta audio payload.');
+    
+    let alg, salt, iv, encryptedLength, encrypted, metadata, metadataLength;
+    
+    if(isV2) {
+        alg = 'AES-256-GCM';
+        metadataLength=read32(payload,6);
+        const metadataEnd=10+metadataLength;
+        if(metadataEnd+32>payload.length)throw Error('The encrypted PNG payload is incomplete.');
+        metadata=JSON.parse(decoder.decode(payload.slice(10,metadataEnd)));
+        salt=payload.slice(metadataEnd,metadataEnd+16);
+        iv=payload.slice(metadataEnd+16,metadataEnd+28);
+        encryptedLength=read32(payload,metadataEnd+28);
+        encrypted=payload.slice(metadataEnd+32,metadataEnd+32+encryptedLength);
+    } else {
+        const algLen = payload[5];
+        alg = decoder.decode(payload.slice(6, 6 + algLen));
+        let offset = 6 + algLen;
+        
+        metadataLength = read32(payload, offset); offset+=4;
+        metadata=JSON.parse(decoder.decode(payload.slice(offset, offset+metadataLength))); offset+=metadataLength;
+        
+        salt=payload.slice(offset, offset+16); offset+=16;
+        iv=payload.slice(offset, offset+16); offset+=16; // Now using 16 bytes for IV
+        
+        encryptedLength=read32(payload, offset); offset+=4;
+        encrypted=payload.slice(offset, offset+encryptedLength);
+    }
+
+    if(encrypted.length!==encryptedLength)throw Error('The encrypted audio payload is incomplete.');
+    
+    let mappedAlg = 'AES-GCM';
+    if(alg.includes('CTR') || alg.includes('CM')) mappedAlg = 'AES-CTR';
+    let decryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
+
+    const audioBytes=new Uint8Array(await crypto.subtle.decrypt(decryptParams,await deriveKey(salt, alg),encrypted));
+    const blob=new Blob([audioBytes],{type:metadata.type});
+    download(blob,metadata.name||'crypta-recovered-audio');
+    audioPreview.src=URL.createObjectURL(blob);
+    audioPreview.hidden=false;
+    setStatus('Audio authenticated, decrypted, and downloaded.')
+}
+
+function download(blob,name){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
+async function run(action){try{setStatus('Processing securely...');await action()}catch(error){console.error(error);setStatus(error.message||'Audio processing failed.')}}
+
+document.querySelector('#encrypt').onclick=()=>run(encrypt);
+document.querySelector('#decrypt').onclick=()=>run(decrypt);
+downloadButton.onclick=()=>{if(!encryptedPngBytes){setStatus('Encrypt audio before downloading.');return}download(new Blob([encryptedPngBytes],{type:'image/png'}),'crypta-encrypted-audio.png')};
+document.querySelector('#clear').onclick=()=>{audioInput.value='';encryptedInput.value='';passwordInput.value='';audioFile=null;encryptedPngBytes=null;audioPreview.hidden=true;audioPreview.removeAttribute('src');wave.getContext('2d').clearRect(0,0,wave.width,wave.height);qrPreview.getContext('2d').clearRect(0,0,320,320);document.querySelector('#audio-name').textContent='';btnAudioInfo.style.display='none';setStatus('Ready for a new audio workflow.')};
 </script></body>
 </html>

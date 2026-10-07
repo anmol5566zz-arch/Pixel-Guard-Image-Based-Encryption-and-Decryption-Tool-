@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypta - Combined Vault</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root { --bg: #101827; --panel: #182338; --line: #31415d; --text: #f4f7fb; --muted: #9eacc2; --accent: #00e5ff; --accent-dark: #003333; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 50% 0, #002222 0, #101827 45%); color: var(--text); font: 16px/1.5 "Segoe UI", sans-serif; }
+.wrap { max-width: 1080px; margin: auto; padding: 28px 18px 48px; }
+.wrap:before { content: 'CRYPTA / COMBINED VAULT'; display: inline-block; margin-bottom: 24px; border: 1px solid var(--accent); border-radius: 999px; padding: 5px 10px; color: var(--accent); font-size: .68rem; letter-spacing: .16em; }
+header { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 30px; }
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.05; margin: 8px 0; }
+h1 span { color: var(--accent); }
+h2 { margin: 0 0 14px; }
+.eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .15em; font-size: .75rem; font-weight: 700; }
+.subtitle, small { color: var(--muted); }
+.nav { display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }
+.nav a { color: var(--muted); text-decoration: none; border: 1px solid var(--line); padding: 7px 10px; border-radius: 7px; font-size: .85rem; }
+.nav a:hover, .nav a.active { color: var(--text); border-color: var(--accent); background: var(--accent-dark); }
+.layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; }
+.panel { background: rgba(24, 35, 56, .94); border: 1px solid var(--line); border-radius: 12px; padding: 22px; box-shadow: 0 18px 45px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.04); transition: transform .25s, border-color .25s, box-shadow .25s; }
+.panel:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 22px 55px rgba(0,0,0,.28), 0 0 24px rgba(0,229,255,.12); }
+label { display: block; color: var(--muted); font-size: .9rem; margin: 0 0 7px; }
+input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 7px; background: #0d1523; color: var(--text); padding: 12px; font: inherit; margin-bottom: 14px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); }
+.actions { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0 12px; }
+button { border: 0; border-radius: 7px; background: var(--accent); color: #001111; padding: 11px 14px; font: 600 14px inherit; cursor: pointer; transition: filter 0.2s, transform 0.2s; }
+button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+button.secondary { background: transparent; color: var(--text); border: 1px solid var(--line); }
+button.secondary:hover { border-color: var(--accent); }
+#status { min-height: 25px; color: var(--accent); margin-top: 10px; font-size: 0.9rem; }
+#qr-preview { display: block; width: min(100%, 320px); height: auto; margin: 14px auto 16px; background: #fff; border-radius: 4px; }
+.architecture { color: var(--muted); font-size: .9rem; margin-top: 15px; }
+.architecture strong { color: var(--text); }
+.result-label { margin-top: 20px; }
+
+/* Item List & Add Buttons */
+.add-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.add-buttons button { background: #1a273d; color: var(--text); border: 1px solid var(--line); padding: 8px; font-size: 0.85rem; }
+.add-buttons button:hover { border-color: var(--accent); color: var(--accent); }
+.item-list { display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+.item-list::-webkit-scrollbar { width: 6px; }
+.item-list::-webkit-scrollbar-track { background: transparent; }
+.item-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.item-card { background: #0d1523; border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+.item-info { display: flex; flex-direction: column; gap: 2px; }
+.item-title { color: var(--text); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+.item-meta { color: var(--muted); font-size: 0.75rem; }
+.item-actions button { padding: 5px 10px; font-size: 0.75rem; margin-left: 5px; }
+.empty-state { text-align: center; color: var(--muted); padding: 40px 0; border: 2px dashed var(--line); border-radius: 8px; }
+
+/* Modals */
+.modal-overlay { position: fixed; inset: 0; background: rgba(16, 24, 39, 0.85); backdrop-filter: blur(4px); z-index: 50; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-content { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; width: 100%; max-width: 450px; transform: scale(0.95); transition: transform 0.2s; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal-header h3 { margin: 0; color: var(--text); font-size: 1.1rem; }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; }
+.modal-close:hover { color: var(--text); }
+.hidden-file-input { display: none; }
+</style>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+<main class="wrap">
+    <header>
+        <div>
+            <div class="eyebrow">Crypta / Combined</div>
+            <h1>Bundle your <span>secrets.</span></h1>
+            <p class="subtitle">Combine text, images, audio, video, and location into a single encrypted QR PNG.</p>
+        </div>
+        <nav class="nav" aria-label="Security tools">
+            <a href="index.html">Home</a>
+            <a href="image-encryption.html">Image</a>
+            <a href="text-encryption.html">Text</a>
+            <a href="audio-encryption.html">Audio</a>
+            <a href="video-encryption.html">Video</a>
+            <a href="location-encryption.html">Location</a>
+            <a class="active" href="combined-encryption.html">Combined</a>
+        </nav>
+    </header>
+
+    <section class="layout">
+        <div class="panel">
+            <h2>1. Vault Contents</h2>
+            <div class="add-buttons">
+                <button onclick="openTextModal()">+ Text</button>
+                <button onclick="triggerFileInput('image/*')">+ Image</button>
+                <button onclick="triggerFileInput('audio/*')">+ Audio</button>
+                <button onclick="triggerFileInput('video/*')">+ Video</button>
+                <button onclick="openLocModal()">+ Location</button>
+            </div>
+            
+            <input type="file" id="hidden-file" class="hidden-file-input" multiple>
+            
+            <div id="item-list" class="item-list">
+                <div class="empty-state">No items added yet.<br><small>Add items using the buttons above.</small></div>
+            </div>
+            
+            <div style="margin-top: 15px; text-align: right; font-size: 0.85rem; color: var(--muted);">
+                Total Vault Size: <span id="total-size">0 Bytes</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>2. Secure Controls</h2>
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="PBKDF2 derives a strong key">
+            
+            <label for="algorithm">Encryption Algorithm</label>
+            <select id="algorithm">
+                <option value="AES-256-GCM">AES-256-GCM (Recommended)</option>
+                <option value="AES-128-GCM">AES-128-GCM</option>
+                <option value="ChaCha20-Poly1305">ChaCha20-Poly1305</option>
+                <option value="AES-256-CTR">AES-256-CTR</option>
+                <option value="AES-256-CBC">AES-256-CBC</option>
+                <option value="ARIA-256-GCM">ARIA-256-GCM</option>
+                <option value="ECC-AES-Hybrid">ECC + AES Hybrid Encryption</option>
+            </select>
+
+            <div class="actions">
+                <button id="encrypt" style="flex: 1;">Encrypt Combined Vault</button>
+            </div>
+            <p id="status" role="status"></p>
+            
+            <div style="border-top: 1px solid var(--line); margin: 20px 0; padding-top: 20px;">
+                <h2>3. Reveal Vault</h2>
+                <label for="encrypted-file">Upload Encrypted QR PNG</label>
+                <input id="encrypted-file" type="file" accept="image/png,.png">
+                <div class="actions">
+                    <button id="decrypt" class="secondary" style="flex: 1;">Decrypt & Extract</button>
+                    <button id="clear" class="secondary">Clear All</button>
+                </div>
+            </div>
+            
+            <canvas id="qr-preview" width="320" height="320" style="display: none;"></canvas>
+            <div class="actions" id="download-container" style="display: none;">
+                <button id="download-encrypted" style="width: 100%;">Download Encrypted PNG</button>
+            </div>
+            <p class="architecture"><strong>Architecture:</strong> Multiple data types are bundled, encoded into a strict JSON manifest and contiguous byte array, and then strongly encrypted using the selected algorithm. The cipher payload is embedded directly into a PNG image.</p>
+        </div>
+    </section>
+</main>
+
+<!-- Text Input Modal -->
+<div id="text-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add Text</h3>
+            <button class="modal-close" onclick="closeModal('text-modal')">✕</button>
+        </div>
+        <label>Title (Optional)</label>
+        <input type="text" id="text-title" placeholder="e.g., Secret Note">
+        <label>Content</label>
+        <textarea id="text-content" rows="5" placeholder="Enter your private text here..."></textarea>
+        <button onclick="saveText()" style="width: 100%;">Save Text to Vault</button>
+    </div>
+</div>
+
+<!-- Location Input Modal -->
+<div id="loc-modal" class="modal-overlay">
+    <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h3>Add Location</h3>
+            <button class="modal-close" onclick="closeModal('loc-modal')">✕</button>
+        </div>
+        <label>Label</label>
+        <input type="text" id="loc-label" placeholder="e.g., Home">
+        <label>Flat / House No.</label>
+        <input type="text" id="loc-flat" placeholder="e.g., Apt 4B">
+        <label>Area</label>
+        <input type="text" id="loc-area" placeholder="e.g., Downtown">
+        <label>Locality</label>
+        <input type="text" id="loc-locality" placeholder="e.g., North Side">
+        <label>Pincode</label>
+        <input type="text" id="loc-pincode" placeholder="e.g., 10001">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+                <label>Latitude</label>
+                <input type="number" id="loc-lat" placeholder="e.g., 37.7749" step="any">
+            </div>
+            <div>
+                <label>Longitude</label>
+                <input type="number" id="loc-lng" placeholder="e.g., -122.4194" step="any">
+            </div>
+        </div>
+        
+        <button onclick="getCurrentLoc()" class="secondary" style="width: 100%; margin-bottom: 14px;">Get Current Location</button>
+        <button onclick="saveLoc()" style="width: 100%;">Save Location to Vault</button>
+    </div>
+</div>
+
+<!-- View Modal (For Decryption) -->
+<div id="view-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="view-title">View Content</h3>
+            <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
+        </div>
+        <div id="view-content-container" style="margin-bottom: 14px; max-height: 400px; overflow-y: auto;">
+            <!-- Content will be injected here -->
+        </div>
+        <button onclick="closeModal('view-modal')" class="secondary" style="width: 100%;">Close</button>
+    </div>
+</div>
+
+<script>
+// UI Elements
+const itemListEl = document.getElementById('item-list');
+const totalSizeEl = document.getElementById('total-size');
+const fileInput = document.getElementById('hidden-file');
+const statusEl = document.getElementById('status');
+const passwordInput = document.getElementById('password');
+const algorithmSelect = document.getElementById('algorithm');
+const encryptedFileInput = document.getElementById('encrypted-file');
+const qrPreview = document.getElementById('qr-preview');
+const downloadContainer = document.getElementById('download-container');
+const downloadBtn = document.getElementById('download-encrypted');
+
+let vaultItems = [];
+let isRecoveredView = false;
+let encryptedPngBytes = null;
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+const magic = new Uint8Array([67, 79, 77, 66, 49]); // COMB1
+
+// Modals
+function openTextModal() { document.getElementById('text-modal').classList.add('show'); document.getElementById('text-title').value = ''; document.getElementById('text-content').value = ''; }
+function openLocModal() { 
+    document.getElementById('loc-modal').classList.add('show'); 
+    document.getElementById('loc-label').value = ''; 
+    document.getElementById('loc-flat').value = ''; 
+    document.getElementById('loc-area').value = ''; 
+    document.getElementById('loc-locality').value = ''; 
+    document.getElementById('loc-pincode').value = ''; 
+    document.getElementById('loc-lat').value = ''; 
+    document.getElementById('loc-lng').value = ''; 
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// Formatting Helpers
+function formatBytes(bytes) {
+    if (!+bytes) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+}
+function setStatus(msg) { statusEl.textContent = msg; }
+function getIcon(type) {
+    if(type === 'text') return '📄';
+    if(type.startsWith('image')) return '🖼️';
+    if(type.startsWith('audio')) return '🎵';
+    if(type.startsWith('video')) return '🎬';
+    if(type === 'location') return '📍';
+    return '📁';
+}
+
+// Data Management
+function renderItems() {
+    if (vaultItems.length === 0) {
+        itemListEl.innerHTML = `<div class="empty-state">No items added yet.<br><small>${isRecoveredView ? 'Decrypt a PNG to view items.' : 'Add items using the buttons above.'}</small></div>`;
+        totalSizeEl.textContent = '0 Bytes';
+        return;
+    }
+    
+    itemListEl.innerHTML = '';
+    let totalSize = 0;
+    
+    vaultItems.forEach((item, index) => {
+        totalSize += item.data.length;
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        
+        let title = item.metadata.name || 'Untitled';
+        let meta = `${formatBytes(item.data.length)} · ${item.type}`;
+        
+        let actionsHtml = '';
+        if (isRecoveredView) {
+            actionsHtml = `
+                <button onclick="viewItem(${index})" class="secondary">View</button>
+                <button onclick="downloadItem(${index})" class="secondary">Save</button>
+            `;
+        } else {
+            actionsHtml = `<button onclick="removeItem(${index})" class="secondary">Remove</button>`;
+        }
+        
+        div.innerHTML = `
+            <div class="item-info">
+                <div class="item-title">${getIcon(item.type)} ${title}</div>
+                <div class="item-meta">${meta}</div>
+            </div>
+            <div class="item-actions">
+                ${actionsHtml}
+            </div>
+        `;
+        itemListEl.appendChild(div);
+    });
+    
+    totalSizeEl.textContent = formatBytes(totalSize);
+}
+
+function saveText() {
+    const content = document.getElementById('text-content').value;
+    if (!content) return;
+    const title = document.getElementById('text-title').value || 'Secret Text';
+    const bytes = encoder.encode(content);
+    vaultItems.push({ type: 'text', data: bytes, metadata: { name: title } });
+    closeModal('text-modal');
+    isRecoveredView = false;
+    renderItems();
+}
+
+function saveLoc() {
+    const label = document.getElementById('loc-label').value.trim();
+    const flat = document.getElementById('loc-flat').value.trim();
+    const area = document.getElementById('loc-area').value.trim();
+    const locality = document.getElementById('loc-locality').value.trim();
+    const pincode = document.getElementById('loc-pincode').value.trim();
+    const latStr = document.getElementById('loc-lat').value;
+    const lngStr = document.getElementById('loc-lng').value;
+    
+    if (!label && !flat && !area && !latStr) {
+        alert('Please enter some location details.');
+        return;
+    }
+    
+    const lat = latStr ? parseFloat(latStr) : null;
+    const lng = lngStr ? parseFloat(lngStr) : null;
+    
+    const locObj = { label, flat, area, locality, pincode, lat, lng };
+    const bytes = encoder.encode(JSON.stringify(locObj));
+    
+    const displayName = label || flat || (lat !== null ? `Location (${lat}, ${lng})` : 'Unnamed Location');
+    
+    vaultItems.push({ type: 'location', data: bytes, metadata: { name: displayName, ...locObj } });
+    closeModal('loc-modal');
+    isRecoveredView = false;
+    renderItems();
+}
+
+function getCurrentLoc() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                document.getElementById('loc-lat').value = pos.coords.latitude;
+                document.getElementById('loc-lng').value = pos.coords.longitude;
+            },
+            () => setStatus("Geolocation permission denied or unavailable.")
+        );
+    }
+}
+
+function triggerFileInput(accept) {
+    fileInput.accept = accept;
+    fileInput.click();
+}
+
+fileInput.onchange = async (e) => {
+    const files = e.target.files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const buffer = await file.arrayBuffer();
+        vaultItems.push({
+            type: file.type || 'application/octet-stream',
+            data: new Uint8Array(buffer),
+            metadata: { name: file.name, mime: file.type }
+        });
+    }
+    fileInput.value = '';
+    isRecoveredView = false;
+    renderItems();
+};
+
+function removeItem(index) {
+    vaultItems.splice(index, 1);
+    renderItems();
+}
+
+function viewItem(index) {
+    const item = vaultItems[index];
+    document.getElementById('view-title').textContent = item.metadata.name || 'View Item';
+    const container = document.getElementById('view-content-container');
+    container.innerHTML = ''; // clear previous content
+    
+    if (item.type === 'text') {
+        const text = decoder.decode(item.data);
+        const textarea = document.createElement('textarea');
+        textarea.rows = 8;
+        textarea.readOnly = true;
+        textarea.value = text;
+        container.appendChild(textarea);
+    } else if (item.type === 'location') {
+        const text = decoder.decode(item.data);
+        const loc = JSON.parse(text);
+        const textarea = document.createElement('textarea');
+        textarea.rows = 10;
+        textarea.readOnly = true;
+        let locText = '';
+        if (loc.label) locText += `Label: ${loc.label}\n`;
+        if (loc.flat) locText += `Flat/House No.: ${loc.flat}\n`;
+        if (loc.area) locText += `Area: ${loc.area}\n`;
+        if (loc.locality) locText += `Locality: ${loc.locality}\n`;
+        if (loc.pincode) locText += `Pincode: ${loc.pincode}\n`;
+        if (loc.lat !== undefined && loc.lat !== null) locText += `Latitude: ${loc.lat}\n`;
+        if (loc.lng !== undefined && loc.lng !== null) locText += `Longitude: ${loc.lng}\n`;
+        if (loc.lat !== undefined && loc.lng !== undefined && loc.lat !== null && loc.lng !== null) {
+            locText += `\nGoogle Maps: https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+        }
+        if (!locText) locText = 'No location details provided.';
+        textarea.value = locText.trim();
+        container.appendChild(textarea);
+    } else if (item.type.startsWith('image/')) {
+        const blob = new Blob([item.data], { type: item.metadata.mime || item.type });
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(blob);
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '8px';
+        container.appendChild(img);
+    } else if (item.type.startsWith('audio/')) {
+        const blob = new Blob([item.data], { type: item.metadata.mime || item.type });
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = URL.createObjectURL(blob);
+        audio.style.width = '100%';
+        container.appendChild(audio);
+    } else if (item.type.startsWith('video/')) {
+        const blob = new Blob([item.data], { type: item.metadata.mime || item.type });
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = URL.createObjectURL(blob);
+        video.style.maxWidth = '100%';
+        video.style.borderRadius = '8px';
+        container.appendChild(video);
+    } else {
+        container.innerHTML = '<p style="color: var(--muted); text-align: center;">Preview not available for this file type.</p>';
+    }
+    
+    document.getElementById('view-modal').classList.add('show');
+}
+
+function downloadItem(index) {
+    const item = vaultItems[index];
+    let type = item.metadata.mime || item.type || 'application/octet-stream';
+    if (item.type === 'text') type = 'text/plain';
+    if (item.type === 'location') type = 'application/json';
+    
+    const blob = new Blob([item.data], { type });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    
+    let defaultName = item.metadata.name || 'recovered_file';
+    if (item.type === 'text' && !defaultName.endsWith('.txt')) defaultName += '.txt';
+    if (item.type === 'location' && !defaultName.endsWith('.json')) defaultName += '.json';
+    
+    link.download = defaultName;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+// Binary / Crypto Helpers
+function write32(bytes, offset, value) { new DataView(bytes.buffer, bytes.byteOffset).setUint32(offset, value); }
+function read32(bytes, offset) { return new DataView(bytes.buffer, bytes.byteOffset).getUint32(offset); }
+function crc32(bytes) { let crc = 0xffffffff; for (const byte of bytes) { crc ^= byte; for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1)); } return (crc ^ 0xffffffff) >>> 0; }
+function pngChunk(type, data) {
+    const chunk = new Uint8Array(12 + data.length), typeBytes = encoder.encode(type), crcInput = new Uint8Array(4 + data.length);
+    chunk.set(typeBytes, 4); chunk.set(data, 8); crcInput.set(typeBytes); crcInput.set(data, 4);
+    write32(chunk, 0, data.length); write32(chunk, 8 + data.length, crc32(crcInput));
+    return chunk;
+}
+function addPayload(png, payload) {
+    const offset = png.length - 12, chunk = pngChunk('cRYp', payload), result = new Uint8Array(png.length + chunk.length);
+    result.set(png.slice(0, offset)); result.set(chunk, offset); result.set(png.slice(offset), offset + chunk.length);
+    return result;
+}
+async function readPayload(file) {
+    const png = new Uint8Array(await file.arrayBuffer()), sig = [137, 80, 78, 71, 13, 10, 26, 10];
+    if (!sig.every((v, i) => png[i] === v)) throw Error('Select an encrypted QR PNG file.');
+    for (let offset = 8; offset + 12 <= png.length;) {
+        const length = read32(png, offset), type = decoder.decode(png.slice(offset + 4, offset + 8));
+        if (offset + 12 + length > png.length) break;
+        if (type === 'cRYp') return png.slice(offset + 8, offset + 8 + length);
+        offset += 12 + length;
+    }
+    throw Error('No combined vault payload found in this PNG.');
+}
+async function deriveKey(salt, targetAlgorithm = 'AES-256-GCM') {
+    if (!passwordInput.value) throw Error('Enter a password.');
+    const material = await crypto.subtle.importKey('raw', encoder.encode(passwordInput.value), 'PBKDF2', false, ['deriveKey']);
+    let keyLength = 256, algName = 'AES-GCM';
+    if (targetAlgorithm.includes('128')) keyLength = 128;
+    if (targetAlgorithm.includes('CTR')) algName = 'AES-CTR';
+    if (targetAlgorithm.includes('CBC')) algName = 'AES-CBC';
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, material, { name: algName, length: keyLength }, false, ['encrypt', 'decrypt']);
+}
+
+function drawQr() {
+    if (typeof qrcode !== 'function') throw Error('The QR encoder could not be loaded.');
+    const code = qrcode(0, 'L'); code.addData('CRYPTA-COMBINED-VAULT'); code.make();
+    const modules = code.getModuleCount(), cell = Math.max(1, Math.floor(320 / (modules + 8))), margin = Math.floor((320 - (modules + 8) * cell) / 2), ctx = qrPreview.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 320, 320); ctx.fillStyle = '#000';
+    for (let r = 0; r < modules; r++) for (let c = 0; c < modules; c++) if (code.isDark(r, c)) ctx.fillRect(margin + (c + 4) * cell, margin + (r + 4) * cell, cell, cell);
+}
+
+// Cryptography Workflow
+document.getElementById('encrypt').onclick = async () => {
+    try {
+        if (vaultItems.length === 0) throw Error('Add at least one item to the vault.');
+        if (!passwordInput.value) throw Error('Enter a password.');
+        setStatus('Bundling and encrypting...');
+        
+        // 1. Prepare Manifest & Contiguous Byte Array
+        const manifest = vaultItems.map(item => ({ type: item.type, metadata: item.metadata, size: item.data.length }));
+        const manifestBytes = encoder.encode(JSON.stringify(manifest));
+        const totalDataSize = vaultItems.reduce((sum, item) => sum + item.data.length, 0);
+        const rawVault = new Uint8Array(4 + manifestBytes.length + totalDataSize);
+        
+        write32(rawVault, 0, manifestBytes.length);
+        rawVault.set(manifestBytes, 4);
+        
+        let offset = 4 + manifestBytes.length;
+        for (const item of vaultItems) {
+            rawVault.set(item.data, offset);
+            offset += item.data.length;
+        }
+
+        // 2. Encrypt the combined rawVault
+        const alg = algorithmSelect.value || 'AES-256-GCM';
+        const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(16));
+        let mappedAlg = 'AES-GCM';
+        if (alg.includes('CTR')) mappedAlg = 'AES-CTR';
+        if (alg.includes('CBC')) mappedAlg = 'AES-CBC';
+        let encryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
+        
+        const cipher = new Uint8Array(await crypto.subtle.encrypt(encryptParams, await deriveKey(salt, alg), rawVault));
+        
+        // 3. Prepare Payload
+        const algBytes = encoder.encode(alg);
+        const payload = new Uint8Array(5 + 1 + algBytes.length + 16 + 16 + 4 + cipher.length);
+        payload.set(magic);
+        payload[5] = algBytes.length;
+        payload.set(algBytes, 6);
+        offset = 6 + algBytes.length;
+        payload.set(salt, offset); offset += 16;
+        payload.set(iv, offset); offset += 16;
+        write32(payload, offset, cipher.length); offset += 4;
+        payload.set(cipher, offset);
+        
+        // 4. Generate QR & Build PNG
+        qrPreview.style.display = 'block';
+        drawQr();
+        const binary = atob(qrPreview.toDataURL('image/png').split(',')[1]);
+        encryptedPngBytes = addPayload(Uint8Array.from(binary, c => c.charCodeAt(0)), payload);
+        
+        downloadContainer.style.display = 'flex';
+        setStatus('Vault encrypted successfully. Ready to download.');
+    } catch (e) {
+        setStatus(e.message);
+        console.error(e);
+    }
+};
+
+document.getElementById('decrypt').onclick = async () => {
+    try {
+        const file = encryptedFileInput.files[0];
+        if (!file) throw Error('Upload an encrypted QR PNG first.');
+        if (!passwordInput.value) throw Error('Enter a password.');
+        setStatus('Authenticating and decrypting...');
+        
+        const payload = await readPayload(file);
+        if (payload.length < 42 || !magic.every((v, i) => payload[i] === v)) throw Error('Invalid COMB1 Crypta payload.');
+        
+        const algLen = payload[5];
+        const alg = decoder.decode(payload.slice(6, 6 + algLen));
+        let offset = 6 + algLen;
+        const salt = payload.slice(offset, offset + 16); offset += 16;
+        const iv = payload.slice(offset, offset + 16); offset += 16;
+        const cipherLength = read32(payload, offset); offset += 4;
+        const cipher = payload.slice(offset, offset + cipherLength);
+        
+        let mappedAlg = 'AES-GCM';
+        if (alg.includes('CTR')) mappedAlg = 'AES-CTR';
+        if (alg.includes('CBC')) mappedAlg = 'AES-CBC';
+        let decryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
+        
+        const plain = new Uint8Array(await crypto.subtle.decrypt(decryptParams, await deriveKey(salt, alg), cipher));
+        
+        // Unpack manifest
+        const manifestLength = read32(plain, 0);
+        const manifest = JSON.parse(decoder.decode(plain.slice(4, 4 + manifestLength)));
+        let dataOffset = 4 + manifestLength;
+        
+        vaultItems = [];
+        for (const itemDef of manifest) {
+            const data = plain.slice(dataOffset, dataOffset + itemDef.size);
+            dataOffset += itemDef.size;
+            vaultItems.push({ type: itemDef.type, metadata: itemDef.metadata, data });
+        }
+        
+        isRecoveredView = true;
+        renderItems();
+        setStatus(`Successfully recovered ${vaultItems.length} items from the vault.`);
+        qrPreview.style.display = 'none';
+        downloadContainer.style.display = 'none';
+    } catch (e) {
+        setStatus(e.message || 'Decryption failed.');
+        console.error(e);
+    }
+};
+
+downloadBtn.onclick = () => {
+    if (!encryptedPngBytes) return;
+    const blob = new Blob([encryptedPngBytes], { type: 'image/png' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'crypta-combined-vault.png';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+};
+
+document.getElementById('clear').onclick = () => {
+    vaultItems = [];
+    isRecoveredView = false;
+    encryptedPngBytes = null;
+    passwordInput.value = '';
+    encryptedFileInput.value = '';
+    qrPreview.style.display = 'none';
+    downloadContainer.style.display = 'none';
+    renderItems();
+    setStatus('Vault cleared.');
+};
+
+renderItems();
+</script>
+</body>
+</html>
+
