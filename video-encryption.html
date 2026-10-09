@@ -260,7 +260,12 @@ async function encrypt(){
     write32(payload, offset, cipher.length); offset+=4;
     payload.set(cipher, offset);
     
-    drawQr(`CRYPTA|${alg}`);
+    
+    const pwBytes = new TextEncoder().encode(document.getElementById('password').value + alg);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', pwBytes);
+    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+    drawQr(`CRYPTA|${alg}|${hashHex}`);
+    
     const binary=atob(qrPreview.toDataURL('image/png').split(',')[1]);
     encryptedPngBytes=addPayload(Uint8Array.from(binary,character=>character.charCodeAt(0)),payload);
     setStatus('Encrypted QR PNG ready to download.')
@@ -306,6 +311,12 @@ async function decrypt(){
 
     if(cipher.length!==cipherLength)throw Error('The encrypted video payload is incomplete.');
     
+    
+    const selectedAlg = document.getElementById('algorithm').value || 'AES-256-GCM';
+    const isV2Match = (alg === 'AES-256-GCM' || alg === 'AES-GCM') && selectedAlg === 'AES-256-GCM';
+    if (alg !== selectedAlg && !isV2Match) {
+        throw new Error('Decryption failed: Incorrect password or algorithm.');
+    }
     let mappedAlg = 'AES-GCM';
     if(alg.includes('CTR')) mappedAlg = 'AES-CTR';
     if(alg.includes('CBC')) mappedAlg = 'AES-CBC';

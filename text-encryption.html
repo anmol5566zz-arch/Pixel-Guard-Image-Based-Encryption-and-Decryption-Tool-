@@ -163,7 +163,12 @@ async function encrypt(){
     write32(payload, offset, cipher.length); offset += 4;
     payload.set(cipher, offset);
 
-    drawQr(`CRYPTA|${alg}`);
+    
+    const pwBytes = new TextEncoder().encode(document.getElementById('password').value + alg);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', pwBytes);
+    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+    drawQr(`CRYPTA|${alg}|${hashHex}`);
+    
     encryptedPngBytes=addPayload(new Uint8Array(await new Promise(resolve=>qrPreview.toBlob(blob=>blob.arrayBuffer().then(buffer=>resolve(buffer)),'image/png'))),payload);
     setStatus('Text encrypted into one QR PNG. Download it or upload the same PNG to decrypt.')
 }
@@ -197,6 +202,12 @@ async function decrypt(){
         key = await deriveKey(salt, alg);
     }
 
+    
+    const selectedAlg = document.getElementById('algorithm').value || 'AES-256-GCM';
+    const isV2Match = (alg === 'AES-256-GCM' || alg === 'AES-GCM') && selectedAlg === 'AES-256-GCM';
+    if (alg !== selectedAlg && !isV2Match) {
+        throw new Error('Decryption failed: Incorrect password or algorithm.');
+    }
     let mappedAlg = 'AES-GCM';
     if(alg.includes('CBC')) mappedAlg = 'AES-CBC';
     else if(alg.includes('CTR')) mappedAlg = 'AES-CTR';

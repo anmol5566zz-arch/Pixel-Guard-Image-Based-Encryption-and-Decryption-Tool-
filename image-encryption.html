@@ -566,10 +566,14 @@
             }
         }
 
-        function drawSingleQrPreview() {
+        async function drawSingleQrPreview(password, alg) {
             canvasOutput.width = qrTileSize;
             canvasOutput.height = qrTileSize;
-            drawQrTile('CRYPTA|MULTI-ALG|PNG-PAYLOAD', ctxOutput, 0, 0);
+            const pwBytes = textEncoder.encode(password + alg);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', pwBytes);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+            drawQrTile(`CRYPTA|${alg}|${hashHex}`, ctxOutput, 0, 0);
         }
 
         function crc32(bytes) {
@@ -668,7 +672,7 @@
             
             payload.set(encrypted, offset);
 
-            drawSingleQrPreview();
+            await drawSingleQrPreview(passwordInput.value, alg);
             outputFileName = 'crypta-encrypted.png';
             outputBytes = addPayloadToPng(bytesFromDataUrl(canvasOutput.toDataURL('image/png')), payload);
             outputPlaceholder.querySelector('span').textContent = 'Encrypted QR PNG ready to download';
@@ -713,6 +717,14 @@
                 key = await deriveKey(passwordInput.value, salt, alg);
             }
 
+            const selectedAlg = document.getElementById('algorithm').value || 'AES-256-GCM';
+            const isV2Match = alg === 'AES-GCM' && selectedAlg === 'AES-256-GCM';
+            
+            if (alg !== selectedAlg && !isV2Match) {
+                throw new Error('Decryption failed: Incorrect password or algorithm.');
+            }
+
+
             let mappedAlg = 'AES-GCM';
             if (alg === 'AES-CBC') mappedAlg = 'AES-CBC';
             else if (alg === 'AES-CTR') mappedAlg = 'AES-CTR';
@@ -721,10 +733,15 @@
             if (mappedAlg === 'AES-GCM' || mappedAlg === 'AES-CBC') decryptParams = { name: mappedAlg, iv };
             else if (mappedAlg === 'AES-CTR') decryptParams = { name: mappedAlg, counter: iv, length: 64 };
             
-            const secretBytes = new Uint8Array(await crypto.subtle.decrypt(decryptParams, key, encrypted));
-            const recoveredUrl = `data:image/png;base64,${bytesToBase64(secretBytes)}`;
-            const recoveredImage = new Image();
-            await new Promise((resolve, reject) => { recoveredImage.onload = resolve; recoveredImage.onerror = reject; recoveredImage.src = recoveredUrl; });
+            let secretBytes, recoveredImage;
+            try {
+                secretBytes = new Uint8Array(await crypto.subtle.decrypt(decryptParams, key, encrypted));
+                const recoveredUrl = `data:image/png;base64,${bytesToBase64(secretBytes)}`;
+                recoveredImage = new Image();
+                await new Promise((resolve, reject) => { recoveredImage.onload = resolve; recoveredImage.onerror = () => reject(new Error('Image load failed')); recoveredImage.src = recoveredUrl; });
+            } catch (e) {
+                throw new Error('Decryption failed: Incorrect password or algorithm.');
+            }
             canvasOutput.width = recoveredImage.width;
             canvasOutput.height = recoveredImage.height;
             ctxOutput.drawImage(recoveredImage, 0, 0);

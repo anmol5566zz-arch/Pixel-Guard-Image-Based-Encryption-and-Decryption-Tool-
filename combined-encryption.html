@@ -498,9 +498,13 @@ async function deriveKey(salt, targetAlgorithm = 'AES-256-GCM') {
     return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, material, { name: algName, length: keyLength }, false, ['encrypt', 'decrypt']);
 }
 
-function drawQr() {
+
+async function drawQr(password, alg) {
     if (typeof qrcode !== 'function') throw Error('The QR encoder could not be loaded.');
-    const code = qrcode(0, 'L'); code.addData('CRYPTA-COMBINED-VAULT'); code.make();
+    const pwBytes = new TextEncoder().encode(password + alg);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', pwBytes);
+    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+    const code = qrcode(0, 'L'); code.addData(`CRYPTA-COMBINED|${alg}|${hashHex}`); code.make();
     const modules = code.getModuleCount(), cell = Math.max(1, Math.floor(320 / (modules + 8))), margin = Math.floor((320 - (modules + 8) * cell) / 2), ctx = qrPreview.getContext('2d');
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 320, 320); ctx.fillStyle = '#000';
     for (let r = 0; r < modules; r++) for (let c = 0; c < modules; c++) if (code.isDark(r, c)) ctx.fillRect(margin + (c + 4) * cell, margin + (r + 4) * cell, cell, cell);
@@ -552,7 +556,7 @@ document.getElementById('encrypt').onclick = async () => {
         
         // 4. Generate QR & Build PNG
         qrPreview.style.display = 'block';
-        drawQr();
+        await drawQr(document.getElementById('password').value, alg);
         const binary = atob(qrPreview.toDataURL('image/png').split(',')[1]);
         encryptedPngBytes = addPayload(Uint8Array.from(binary, c => c.charCodeAt(0)), payload);
         
@@ -582,16 +586,25 @@ document.getElementById('decrypt').onclick = async () => {
         const cipherLength = read32(payload, offset); offset += 4;
         const cipher = payload.slice(offset, offset + cipherLength);
         
+        
+        const selectedAlg = document.getElementById('algorithm').value || 'AES-256-GCM';
+        const isV2Match = (alg === 'AES-256-GCM' || alg === 'AES-GCM') && selectedAlg === 'AES-256-GCM';
+        if (alg !== selectedAlg && !isV2Match) {
+            throw new Error('Decryption failed: Incorrect password or algorithm.');
+        }
         let mappedAlg = 'AES-GCM';
         if (alg.includes('CTR')) mappedAlg = 'AES-CTR';
         if (alg.includes('CBC')) mappedAlg = 'AES-CBC';
         let decryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
         
-        const plain = new Uint8Array(await crypto.subtle.decrypt(decryptParams, await deriveKey(salt, alg), cipher));
-        
-        // Unpack manifest
-        const manifestLength = read32(plain, 0);
-        const manifest = JSON.parse(decoder.decode(plain.slice(4, 4 + manifestLength)));
+        let plain, manifestLength, manifest;
+        try {
+            plain = new Uint8Array(await crypto.subtle.decrypt(decryptParams, await deriveKey(salt, alg), cipher));
+            manifestLength = read32(plain, 0);
+            manifest = JSON.parse(decoder.decode(plain.slice(4, 4 + manifestLength)));
+        } catch (e) {
+            throw new Error('Decryption failed: Incorrect password or algorithm.');
+        }
         let dataOffset = 4 + manifestLength;
         
         vaultItems = [];

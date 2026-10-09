@@ -161,13 +161,13 @@ function write32(bytes,offset,value){new DataView(bytes.buffer,bytes.byteOffset)
 function read32(bytes,offset){return new DataView(bytes.buffer,bytes.byteOffset).getUint32(offset)}
 
 async function deriveKey(salt, targetAlgorithm = 'AES-256-GCM'){
-    if(!passwordInput.value)throw Error('Enter a password.');
-    const material=await crypto.subtle.importKey('raw',encoder.encode(passwordInput.value),'PBKDF2',false,['deriveKey']);
+    if(!document.getElementById('password').value)throw Error('Enter a password.');
+    const material=await crypto.subtle.importKey('raw',encoder.encode(document.getElementById('password').value),'PBKDF2',false,['deriveKey']);
     
     let keyLength = 256;
     let algName = 'AES-GCM';
     if(targetAlgorithm.includes('128')) keyLength = 128;
-    if(targetAlgorithm.includes('CTR') || targetAlgorithm.includes('CM')) algName = 'AES-CTR';
+    if(targetAlgorithm.includes('CTR')) algName = 'AES-CTR';
 
     return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},material,{name:algName,length:keyLength},false,['encrypt','decrypt']);
 }
@@ -245,7 +245,7 @@ function drawQr(label = 'CRYPTA-AUDIO'){
 
 async function encrypt(){
     if(!audioFile)throw Error('Choose an audio file.');
-    if(!passwordInput.value)throw Error('Enter a password.');
+    if(!document.getElementById('password').value)throw Error('Enter a password.');
     
     const alg = algorithmSelect.value || 'AES-256-GCM';
     const audioBytes=new Uint8Array(await audioFile.arrayBuffer());
@@ -253,7 +253,7 @@ async function encrypt(){
     const iv=crypto.getRandomValues(new Uint8Array(16)); // Use 16 bytes for generic compatibility
     
     let mappedAlg = 'AES-GCM';
-    if(alg.includes('CTR') || alg.includes('CM')) mappedAlg = 'AES-CTR';
+    if(alg.includes('CTR')) mappedAlg = 'AES-CTR';
     let encryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
 
     const encrypted=new Uint8Array(await crypto.subtle.encrypt(encryptParams,await deriveKey(salt, alg),audioBytes));
@@ -274,7 +274,12 @@ async function encrypt(){
     write32(payload, offset, encrypted.length); offset+=4;
     payload.set(encrypted, offset);
 
-    drawQr(`CRYPTA|${alg}`);
+    
+    const pwBytes = new TextEncoder().encode(document.getElementById('password').value + alg);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', pwBytes);
+    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+    drawQr(`CRYPTA|${alg}|${hashHex}`);
+    
     const binary=atob(qrPreview.toDataURL('image/png').split(',')[1]);
     encryptedPngBytes=addPayload(Uint8Array.from(binary,character=>character.charCodeAt(0)),payload);
     setStatus('Encrypted QR PNG ready to download.')
@@ -283,7 +288,7 @@ async function encrypt(){
 async function decrypt(){
     const file=encryptedInput.files[0];
     if(!file)throw Error('Select an encrypted QR PNG file.');
-    if(!passwordInput.value)throw Error('Enter a password.');
+    if(!document.getElementById('password').value)throw Error('Enter a password.');
     
     const payload=await readPayload(file);
     if(payload.length<47) throw Error('This PNG does not contain a valid Crypta audio payload.');
@@ -321,8 +326,14 @@ async function decrypt(){
 
     if(encrypted.length!==encryptedLength)throw Error('The encrypted audio payload is incomplete.');
     
+    
+    const selectedAlg = document.getElementById('algorithm').value || 'AES-256-GCM';
+    const isV2Match = (alg === 'AES-256-GCM' || alg === 'AES-GCM') && selectedAlg === 'AES-256-GCM';
+    if (alg !== selectedAlg && !isV2Match) {
+        throw new Error('Decryption failed: Incorrect password or algorithm.');
+    }
     let mappedAlg = 'AES-GCM';
-    if(alg.includes('CTR') || alg.includes('CM')) mappedAlg = 'AES-CTR';
+    if(alg.includes('CTR')) mappedAlg = 'AES-CTR';
     let decryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
 
     const audioBytes=new Uint8Array(await crypto.subtle.decrypt(decryptParams,await deriveKey(salt, alg),encrypted));
@@ -339,6 +350,6 @@ async function run(action){try{setStatus('Processing securely...');await action(
 document.querySelector('#encrypt').onclick=()=>run(encrypt);
 document.querySelector('#decrypt').onclick=()=>run(decrypt);
 downloadButton.onclick=()=>{if(!encryptedPngBytes){setStatus('Encrypt audio before downloading.');return}download(new Blob([encryptedPngBytes],{type:'image/png'}),'crypta-encrypted-audio.png')};
-document.querySelector('#clear').onclick=()=>{audioInput.value='';encryptedInput.value='';passwordInput.value='';audioFile=null;encryptedPngBytes=null;audioPreview.hidden=true;audioPreview.removeAttribute('src');wave.getContext('2d').clearRect(0,0,wave.width,wave.height);qrPreview.getContext('2d').clearRect(0,0,320,320);document.querySelector('#audio-name').textContent='';btnAudioInfo.style.display='none';setStatus('Ready for a new audio workflow.')};
+document.querySelector('#clear').onclick=()=>{audioInput.value='';encryptedInput.value='';document.getElementById('password').value='';audioFile=null;encryptedPngBytes=null;audioPreview.hidden=true;audioPreview.removeAttribute('src');wave.getContext('2d').clearRect(0,0,wave.width,wave.height);qrPreview.getContext('2d').clearRect(0,0,320,320);document.querySelector('#audio-name').textContent='';btnAudioInfo.style.display='none';setStatus('Ready for a new audio workflow.')};
 </script></body>
 </html>

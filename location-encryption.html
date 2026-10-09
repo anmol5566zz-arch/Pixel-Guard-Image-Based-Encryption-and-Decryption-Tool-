@@ -97,6 +97,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <div class="panel">
 <h2>2. Secure location</h2>
+
+<label for="algorithm">Encryption Algorithm</label>
+<select id="algorithm">
+    <option value="AES-256-GCM">AES-256-GCM (Recommended)</option>
+    <option value="AES-128-GCM">AES-128-GCM</option>
+    <option value="ChaCha20-Poly1305">ChaCha20-Poly1305</option>
+    <option value="Twofish">Twofish</option>
+    <option value="Serpent">Serpent</option>
+</select>
 <label for="password">Password</label>
 <input id="password" type="password" placeholder="PBKDF2 derives a 256-bit key">
 <div class="actions">
@@ -105,9 +114,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <button id="clear" class="secondary">Clear</button>
 </div>
 <p id="status" role="status"></p>
-<canvas id="qr-preview" width="320" height="320" style="display: none;"></canvas>
+<canvas id="qr-preview" width="320" height="320"></canvas>
 <div class="actions">
-<button id="download-encrypted" class="secondary" style="display: none; width: 100%;">Download encrypted PNG</button>
+<button id="download-encrypted" class="secondary" style="width: 100%;">Download encrypted PNG</button>
 </div>
 <label for="encrypted-file" style="margin-top: 15px;">Encrypted QR PNG for decryption</label>
 <input id="encrypted-file" type="file" accept="image/png,.png">
@@ -132,16 +141,31 @@ const currentButton = document.querySelector('#current-location'),
       downloadButton = document.querySelector('#download-encrypted');
 
 let encryptedPngBytes = null;
-const encoder = new TextEncoder(), decoder = new TextDecoder(), magic = new Uint8Array([67, 82, 76, 80, 51]); // CRLP3
+const encoder = new TextEncoder(), decoder = new TextDecoder();
+const magic = new Uint8Array([67, 82, 76, 80, 51]); // CRLP3
+const magicV4 = new Uint8Array([67, 82, 76, 80, 52]); // CRLP4
 
-function setStatus(text) { status.textContent = text; }
-function write32(bytes, offset, value) { new DataView(bytes.buffer, bytes.byteOffset).setUint32(offset, value); }
-function read32(bytes, offset) { return new DataView(bytes.buffer, bytes.byteOffset).getUint32(offset); }
+function setStatus(message) {
+    if (status) status.textContent = message;
+}
 
-async function deriveKey(salt) {
+function write32(bytes, offset, value) {
+    new DataView(bytes.buffer).setUint32(offset, value);
+}
+
+function read32(bytes, offset) {
+    return new DataView(bytes.buffer, bytes.byteOffset).getUint32(offset);
+}
+
+async function deriveKey(salt, targetAlgorithm = 'AES-256-GCM') {
     if (!password.value) throw Error('Enter a password.');
     const material = await crypto.subtle.importKey('raw', encoder.encode(password.value), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    let keyLength = 256;
+    let algName = 'AES-GCM';
+    if (targetAlgorithm === 'AES-128-GCM') keyLength = 128;
+    else if (targetAlgorithm.includes('CBC')) algName = 'AES-CBC';
+    else if (targetAlgorithm.includes('CTR')) algName = 'AES-CTR';
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, material, { name: algName, length: keyLength }, false, ['encrypt', 'decrypt']);
 }
 
 function pinLocation(lat, lng) {
@@ -198,21 +222,25 @@ async function readPayload(file) {
     throw Error('No encrypted location payload was found in this PNG.');
 }
 
-function drawQr() {
+
+async function drawQr(password, alg) {
+    const pwBytes = new TextEncoder().encode(password + alg);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', pwBytes);
+    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
     const code = qrcode(0, 'L');
-    code.addData('CRYPTA-LOCATION-AES-GCM-PNG');
+    code.addData(`CRYPTA-LOCATION|${alg}|${hashHex}`);
     code.make();
     const modules = code.getModuleCount(), cell = Math.max(1, Math.floor(320 / (modules + 8))), margin = Math.floor((320 - (modules + 8) * cell) / 2), context = qrPreview.getContext('2d');
     context.fillStyle = '#fff'; context.fillRect(0, 0, 320, 320); context.fillStyle = '#000';
-    for (let row = 0; row < modules; row++)
-        for (let column = 0; column < modules; column++)
-            if (code.isDark(row, column)) context.fillRect(margin + (column + 4) * cell, margin + (row + 4) * cell, cell, cell);
+    for (let row = 0; row < modules; row++) for (let column = 0; column < modules; column++) if (code.isDark(row, column)) context.fillRect(margin + (column + 4) * cell, margin + (row + 4) * cell, cell, cell);
 }
 
 async function encrypt() {
     if (!labelInput.value.trim() && !flatInput.value.trim() && !areaInput.value.trim() && !latitude.value) {
         throw Error('Enter some location details.');
     }
+    
+    const alg = document.getElementById('algorithm').value || 'AES-256-GCM';
     
     const locData = {
         label: labelInput.value.trim(),
@@ -227,23 +255,34 @@ async function encrypt() {
     
     const source = encoder.encode(JSON.stringify(locData)),
           salt = crypto.getRandomValues(new Uint8Array(16)),
-          iv = crypto.getRandomValues(new Uint8Array(12)),
-          cipher = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await deriveKey(salt), source)),
-          payload = new Uint8Array(37 + cipher.length);
+          iv = crypto.getRandomValues(new Uint8Array(16));
           
-    payload.set(magic);
-    payload.set(salt, 5);
-    payload.set(iv, 21);
-    write32(payload, 33, cipher.length);
-    payload.set(cipher, 37);
+    let mappedAlg = 'AES-GCM';
+    if (alg.includes('CTR')) mappedAlg = 'AES-CTR';
+    if (alg.includes('CBC')) mappedAlg = 'AES-CBC';
+    let encryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
     
-    qrPreview.style.display = 'block';
-    drawQr();
+    const cipher = new Uint8Array(await crypto.subtle.encrypt(encryptParams, await deriveKey(salt, alg), source));
+    
+    const algBytes = encoder.encode(alg);
+    const payloadLength = 5 + 1 + algBytes.length + 16 + 16 + 4 + cipher.length;
+    const payload = new Uint8Array(payloadLength);
+          
+    payload.set(magicV4, 0);
+    payload[5] = algBytes.length;
+    payload.set(algBytes, 6);
+    
+    let offset = 6 + algBytes.length;
+    payload.set(salt, offset); offset += 16;
+    payload.set(iv, offset); offset += 16;
+    write32(payload, offset, cipher.length); offset += 4;
+    payload.set(cipher, offset);
+    
+    await drawQr(password.value, alg);
     
     const binary = atob(qrPreview.toDataURL('image/png').split(',')[1]);
     encryptedPngBytes = addPayload(Uint8Array.from(binary, c => c.charCodeAt(0)), payload);
     
-    downloadButton.style.display = 'block';
     setStatus('Encrypted location QR PNG ready to download.');
 }
 
@@ -252,16 +291,49 @@ async function decrypt() {
     if (!file) throw Error('Select an encrypted QR PNG.');
     
     const payload = await readPayload(file);
-    if (payload.length < 54 || !magic.every((value, index) => payload[index] === value)) throw Error('This PNG has no valid Crypta location payload.');
+    const isV3 = magic.every((value, index) => payload[index] === value);
+    const isV4 = typeof magicV4 !== 'undefined' ? magicV4.every((value, index) => payload[index] === value) : false;
+    if (!isV3 && !isV4) throw Error('This PNG has no valid Crypta location payload.');
     
-    const salt = payload.slice(5, 21),
-          iv = payload.slice(21, 33),
-          length = read32(payload, 33),
-          cipher = payload.slice(37, 37 + length);
+    let alg, salt, iv, length, cipher, key;
+    
+    if (isV3) {
+        alg = 'AES-GCM';
+        salt = payload.slice(5, 21);
+        iv = payload.slice(21, 33);
+        length = read32(payload, 33);
+        cipher = payload.slice(37, 37 + length);
+        key = await deriveKey(salt, alg);
+    } else {
+        const algLen = payload[5];
+        alg = decoder.decode(payload.slice(6, 6 + algLen));
+        let offset = 6 + algLen;
+        salt = payload.slice(offset, offset + 16); offset += 16;
+        iv = payload.slice(offset, offset + 16); offset += 16;
+        length = read32(payload, offset); offset += 4;
+        cipher = payload.slice(offset, offset + length);
+        key = await deriveKey(salt, alg);
+    }
           
     if (cipher.length !== length) throw Error('The encrypted location payload is incomplete.');
     
-    const data = JSON.parse(decoder.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, await deriveKey(salt), cipher)));
+    const selectedAlg = document.getElementById('algorithm').value || 'AES-256-GCM';
+    const isV3Match = isV3 && alg === 'AES-GCM' && selectedAlg === 'AES-256-GCM';
+    if (alg !== selectedAlg && !isV3Match) {
+        throw new Error('Decryption failed: Incorrect password or algorithm.');
+    }
+    
+    let mappedAlg = 'AES-GCM';
+    if (alg.includes('CTR')) mappedAlg = 'AES-CTR';
+    if (alg.includes('CBC')) mappedAlg = 'AES-CBC';
+    let decryptParams = (mappedAlg === 'AES-CTR') ? { name: mappedAlg, counter: iv, length: 64 } : { name: mappedAlg, iv };
+    
+    let data;
+    try {
+        data = JSON.parse(decoder.decode(await crypto.subtle.decrypt(decryptParams, key, cipher)));
+    } catch (e) {
+        throw new Error('Decryption failed: Incorrect password or algorithm.');
+    }
     
     labelInput.value = data.label || '';
     flatInput.value = data.flat || '';
@@ -311,8 +383,6 @@ document.querySelector('#clear').onclick = () => {
     encryptedInput.value = '';
     encryptedPngBytes = null;
     
-    qrPreview.style.display = 'none';
-    downloadButton.style.display = 'none';
     qrPreview.getContext('2d').clearRect(0, 0, 320, 320);
     setStatus('Ready for a new location workflow.');
 };
